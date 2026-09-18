@@ -27,9 +27,9 @@ export type JobId =
   | "archer"
   | "dancer";
 
-export type MapId = "xinyue" | "inn" | "road" | "camp" | "yunzhen" | "field" | "merge" | "zhuolu" | "zgate" | "wolong" | "nfield" | "taoyuan" | "tgarden" | "xuchang" | "xroad" | "chaisang" | "jshore" | "waterfort" | "bowyard";
+export type MapId = "xinyue" | "inn" | "road" | "camp" | "yunzhen" | "field" | "merge" | "zhuolu" | "zgate" | "wolong" | "nfield" | "taoyuan" | "tgarden" | "xuchang" | "xroad" | "chaisang" | "jshore" | "waterfort" | "bowyard" | "fengyi" | "mooncourt";
 
-export type ChronicleId = "ch1" | "zhaoyun2" | "confluence" | "zhangfei3" | "zhuge4" | "liubei5" | "caocao6" | "zhouyu7" | "sunshangxiang8";
+export type ChronicleId = "ch1" | "zhaoyun2" | "confluence" | "zhangfei3" | "zhuge4" | "liubei5" | "caocao6" | "zhouyu7" | "sunshangxiang8" | "diaochan9";
 
 export type Dir = "up" | "down" | "left" | "right";
 
@@ -44,10 +44,12 @@ export type Screen =
   | "caocaoConfirm"
   | "zhouyuConfirm"
   | "sunshangxiangConfirm"
+  | "diaochanConfirm"
   | "fourRoads"
   | "fiveRoads"
   | "sixRoads"
   | "sevenRoads"
+  | "eightRoads"
   | "saveSlots"
   | "worldMap"
   | "settings"

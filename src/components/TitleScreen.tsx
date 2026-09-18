@@ -10,6 +10,7 @@ import {
   CAOCAO_CHRONICLE_ID,
   ZHOUYU_CHRONICLE_ID,
   SUNSHANGXIANG_CHRONICLE_ID,
+  DIAOCHAN_CHRONICLE_ID,
 } from "../game/chronicles.ts";
 import { HEROES, heroById } from "../game/data.ts";
 import {
@@ -31,10 +32,13 @@ import {
   caocaoStatus,
   zhouyuStatus,
   sunshangxiangStatus,
+  diaochanStatus,
   sixRoadsUnlocked,
   sixRoadsLockHint,
   sevenRoadsUnlocked,
   sevenRoadsLockHint,
+  eightRoadsUnlocked,
+  eightRoadsLockHint,
   emptyProgress,
   fourRoadsUnlocked,
   fourRoadsLockHint,
@@ -76,10 +80,12 @@ export default function TitleScreen({
   onCaocao,
   onZhouyu,
   onSunshangxiang,
+  onDiaochan,
   onOpenFourRoads,
   onOpenFiveRoads,
   onOpenSixRoads,
   onOpenSevenRoads,
+  onOpenEightRoads,
   onBountyQa,
   onOpenSaveSlots,
   onOpenWorldMap,
@@ -98,10 +104,12 @@ export default function TitleScreen({
   onCaocao: () => void;
   onZhouyu: () => void;
   onSunshangxiang: () => void;
+  onDiaochan: () => void;
   onOpenFourRoads: () => void;
   onOpenFiveRoads: () => void;
   onOpenSixRoads: () => void;
   onOpenSevenRoads: () => void;
+  onOpenEightRoads: () => void;
   onBountyQa: () => void;
   onOpenSaveSlots: () => void;
   onOpenWorldMap: () => void;
@@ -120,10 +128,12 @@ export default function TitleScreen({
   const cc = caocaoStatus(progress);
   const zy7 = zhouyuStatus(progress);
   const ssx = sunshangxiangStatus(progress);
+  const dc = diaochanStatus(progress);
   const [fourGreyQa, setFourGreyQa] = useState(false);
   const [fiveGreyQa, setFiveGreyQa] = useState(false);
   const [sixGreyQa, setSixGreyQa] = useState(false);
   const [sevenGreyQa, setSevenGreyQa] = useState(false);
+  const [eightGreyQa, setEightGreyQa] = useState(false);
   const fourOk = fourGreyQa ? false : fourRoadsUnlocked(progress);
   const fourHint = fourGreyQa
     ? fourRoadsLockHint(emptyProgress())
@@ -140,6 +150,10 @@ export default function TitleScreen({
   const sevenHint = sevenGreyQa
     ? sevenRoadsLockHint(emptyProgress())
     : sevenRoadsLockHint(progress);
+  const eightOk = eightGreyQa ? false : eightRoadsUnlocked(progress);
+  const eightHint = eightGreyQa
+    ? eightRoadsLockHint(emptyProgress())
+    : eightRoadsLockHint(progress);
   const unlocked = confluenceUnlocked(progress);
   const lockHint = confluenceLockHint(progress);
   const mapOk = worldMapUnlocked(progress);
@@ -239,6 +253,16 @@ export default function TitleScreen({
             {ssx}
           </span>
         </div>
+        <div
+          className="title-progress-row diaochan"
+          data-line="diaochan"
+          data-qa="dc-progress-row"
+        >
+          <span className="tp-name">貂蟬列傳</span>
+          <span className={`tp-status ${statusClass(dc)}`} data-status={dc} data-qa="dc-status">
+            {dc}
+          </span>
+        </div>
       </div>
 
       <div className="btn-row title-enter">
@@ -335,6 +359,20 @@ export default function TitleScreen({
         >
           七路總覽
         </button>
+        <button
+          type="button"
+          className={`btn${eightOk ? "" : " locked"}`}
+          data-qa="eight-roads-entry"
+          disabled={!eightOk}
+          title={eightOk ? "八路總覽" : eightHint}
+          onClick={() => {
+            if (!eightOk) return;
+            setEightGreyQa(false);
+            onOpenEightRoads();
+          }}
+        >
+          八路總覽
+        </button>
       </div>
       {!fourOk && (
         <p
@@ -374,6 +412,16 @@ export default function TitleScreen({
         >
           {sevenGreyQa ? "【灰態測試】" : ""}
           {sevenHint}
+        </p>
+      )}
+      {!eightOk && (
+        <p
+          className={`title-lock-hint title-enter eight-roads-lock-hint${eightGreyQa ? " qa-grey" : ""}`}
+          data-qa="eight-roads-lock-hint"
+          data-grey-qa={eightGreyQa ? "1" : "0"}
+        >
+          {eightGreyQa ? "【灰態測試】" : ""}
+          {eightHint}
         </p>
       )}
       <div className="btn-row title-enter" style={{ marginTop: 10 }}>
@@ -432,6 +480,14 @@ export default function TitleScreen({
           onClick={onSunshangxiang}
         >
           孫尚香列傳
+        </button>
+        <button
+          type="button"
+          className="btn"
+          data-qa="diaochan-chronicle"
+          onClick={onDiaochan}
+        >
+          貂蟬列傳
         </button>
         <button
           type="button"
@@ -565,6 +621,18 @@ export default function TitleScreen({
         }}
       >
         孫尚香短線測試
+      </button>
+      <button
+        type="button"
+        className="btn title-qa-unlock title-enter"
+        data-qa="qa-start-diaochan"
+        onClick={() => {
+          patchProgress({ ch9Started: true });
+          bump((n) => n + 1);
+          onDiaochan();
+        }}
+      >
+        貂蟬短線測試
       </button>
       <button
         type="button"
@@ -707,6 +775,47 @@ export default function TitleScreen({
         }}
       >
         七路既竟面板測試
+      </button>
+      <button
+        type="button"
+        className="btn title-qa-unlock title-enter"
+        data-qa="qa-eight-roads-grey"
+        onClick={() => {
+          setEightGreyQa(true);
+          bump((n) => n + 1);
+        }}
+      >
+        八路總覽灰態測試
+      </button>
+      <button
+        type="button"
+        className="btn title-qa-unlock title-enter"
+        data-qa="qa-eight-roads-clear"
+        onClick={() => {
+          patchProgress({
+            ch1Clear: true,
+            ch1Started: true,
+            ch2Clear: true,
+            ch2Started: true,
+            ch3Clear: true,
+            ch3Started: true,
+            ch4Clear: true,
+            ch4Started: true,
+            ch5Clear: true,
+            ch5Started: true,
+            ch6Clear: true,
+            ch6Started: true,
+            ch7Clear: true,
+            ch7Started: true,
+            ch8Clear: true,
+            ch8Started: true,
+          });
+          setEightGreyQa(false);
+          bump((n) => n + 1);
+          onOpenEightRoads();
+        }}
+      >
+        八路既竟面板測試
       </button>
       <button
         type="button"
@@ -1023,6 +1132,7 @@ export function ChronicleConfirm({
   const isCaocao = chronicleId === CAOCAO_CHRONICLE_ID;
   const isZhouyu = chronicleId === ZHOUYU_CHRONICLE_ID;
   const isSunshangxiang = chronicleId === SUNSHANGXIANG_CHRONICLE_ID;
+  const isDiaochan = chronicleId === DIAOCHAN_CHRONICLE_ID;
   const qa = isConfluence
     ? "confluence-confirm"
     : isZhangFei
@@ -1037,7 +1147,9 @@ export function ChronicleConfirm({
               ? "zhouyu-confirm"
               : isSunshangxiang
                 ? "sunshangxiang-confirm"
-                : "chronicle-confirm";
+                : isDiaochan
+                  ? "diaochan-confirm"
+                  : "chronicle-confirm";
   const departQa = isConfluence
     ? "confluence-depart"
     : isZhangFei
@@ -1052,7 +1164,9 @@ export function ChronicleConfirm({
               ? "zhouyu-depart"
               : isSunshangxiang
                 ? "sunshangxiang-depart"
-                : "chronicle-depart";
+                : isDiaochan
+                  ? "diaochan-depart"
+                  : "chronicle-depart";
   return (
     <section className="screen select-stage" data-qa={qa}>
       <div className="bg-plate" style={{ backgroundImage: "url(./art/bg-title.png)", opacity: 0.45 }} />
@@ -1592,6 +1706,65 @@ export function SevenRoadsPanel({ onBack }: { onBack: () => void }) {
               type="button"
               className="btn btn-primary"
               data-qa="seven-roads-close"
+              disabled={!ready}
+              onClick={() => {
+                if (!ready) return;
+                onBack();
+              }}
+            >
+              返回標題
+            </button>
+          </div>
+        </div>
+      </div>
+    </section>
+  );
+}
+
+/** 八路總覽 — unlocked when 關趙張諸劉曹周孫 all 初章既竟; holds 「八路初章既竟」 ≥2.5s. */
+export function EightRoadsPanel({ onBack }: { onBack: () => void }) {
+  const [ready, setReady] = useState(false);
+  useEffect(() => {
+    const timer = window.setTimeout(() => setReady(true), 2500);
+    return () => window.clearTimeout(timer);
+  }, []);
+  const rows = [
+    { name: "關羽", blurb: "義氣破北營，青龍刀定新野。" },
+    { name: "趙雲", blurb: "白馬銀槍，護民於常山平野。" },
+    { name: "張飛", blurb: "燕人虎威，喝退鎮口黃巾。" },
+    { name: "諸葛亮", blurb: "臥龍出山，以計破偽軍師。" },
+    { name: "劉備", blurb: "桃園之誓，拔鄉霸而安民。" },
+    { name: "曹操", blurb: "官道收旗，探馬風聲入袖。" },
+    { name: "周瑜", blurb: "柴桑鼓定，江賊旗倒入水。" },
+    { name: "孫尚香", blurb: "水寨箭道再開，遠射可及江面。" },
+  ];
+  return (
+    <section className="screen select-stage" data-qa="eight-roads-panel">
+      <div className="bg-plate" style={{ backgroundImage: "url(./art/bg-title.png)", opacity: 0.4 }} />
+      <div className="select-inner">
+        <div className="sheet gold-frame eight-roads-sheet" style={{ margin: "24px auto", maxWidth: 480 }}>
+          <h1 className="eight-roads-title" data-qa="eight-roads-title" style={{ marginTop: 0, color: "var(--gold)" }}>
+            八路初章既竟
+          </h1>
+          <p className="eight-roads-hold-hint" aria-hidden={ready}>
+            {ready ? "" : "……"}
+          </p>
+          <p className="eight-roads-aside" data-qa="eight-roads-aside">
+            貂蟬列傳為第九線／外傳，不列八路正名。
+          </p>
+          <ul className="eight-roads-list" data-qa="eight-roads-list">
+            {rows.map((r) => (
+              <li key={r.name} className="eight-roads-row gold-frame chip">
+                <b>{r.name}</b>
+                <span>{r.blurb}</span>
+              </li>
+            ))}
+          </ul>
+          <div className="btn-row" style={{ marginTop: 14 }}>
+            <button
+              type="button"
+              className="btn btn-primary"
+              data-qa="eight-roads-close"
               disabled={!ready}
               onClick={() => {
                 if (!ready) return;

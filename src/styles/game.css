@@ -2659,6 +2659,68 @@ button.btn.locked[data-qa="six-roads-entry"] {
 .title-progress-row[data-line="zhouyu"] .tp-name {
   color: #7ec8ff;
 }
+.title-progress-row.diaochan .tp-name,
+.title-progress-row[data-line="diaochan"] .tp-name {
+  color: #d4a8e8;
+}
+.title-progress-row.sunshangxiang .tp-name,
+.title-progress-row[data-line="sunshangxiang"] .tp-name {
+  color: #e07070;
+}
+
+.eight-roads-sheet {
+  max-width: 480px;
+}
+.eight-roads-title {
+  font-family: var(--font-serif);
+  letter-spacing: 0.14em;
+  text-align: center;
+  font-size: clamp(1.6rem, 4vw, 2rem);
+  font-weight: 900;
+  text-shadow: 0 0 14px rgba(201, 162, 39, 0.35);
+}
+.eight-roads-list {
+  list-style: none;
+  padding: 0;
+  margin: 8px 0 0;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.eight-roads-row {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  padding: 8px 10px;
+}
+.eight-roads-row b {
+  color: var(--gold);
+}
+.eight-roads-hold-hint {
+  text-align: center;
+  color: var(--muted);
+  min-height: 1.2em;
+}
+.eight-roads-aside {
+  text-align: center;
+  color: var(--muted);
+  font-size: 0.88rem;
+  margin: 0 0 8px;
+}
+.eight-roads-lock-hint {
+  color: var(--muted);
+  font-size: 0.9rem;
+  margin: 6px 0 0;
+}
+.eight-roads-lock-hint.qa-grey {
+  color: #b8b0a0;
+  border: 1px dashed #666;
+  padding: 6px 8px;
+}
+button.btn.locked[data-qa="eight-roads-entry"] {
+  opacity: 0.45;
+  filter: grayscale(0.6);
+}
 
 .travel-banner-overlay {
   z-index: 90;

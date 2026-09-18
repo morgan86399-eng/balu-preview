@@ -9,6 +9,7 @@ import TitleScreen, {
   FiveRoadsPanel,
   SixRoadsPanel,
   SevenRoadsPanel,
+  EightRoadsPanel,
   PartySelectPanel,
   SaveSlotsPanel,
   SettingsPanel,
@@ -57,6 +58,9 @@ import {
   sunshangxiangOpening,
   newSunshangxiangSave,
   SUNSHANGXIANG_CHRONICLE_ID,
+  diaochanOpening,
+  newDiaochanSave,
+  DIAOCHAN_CHRONICLE_ID,
 } from "./game/chronicles.ts";
 import {
   confluenceUnlocked,
@@ -77,7 +81,7 @@ import {
 import { PARTNER, PATH_LABEL, heroById } from "./game/data.ts";
 import { ITEMS, expToNext, itemById, isEquippable } from "./game/items.ts";
 import { DELTA } from "./game/view.ts";
-import { blockedTile, isFieldMinibossTile, isMergeMinibossTile, isNfieldMinibossTile, isTgardenMinibossTile, isXroadMinibossTile, isJshoreMinibossTile, isBowyardMinibossTile, isZgateMinibossTile, mapById, tileAt } from "./game/maps.ts";
+import { blockedTile, isFieldMinibossTile, isMergeMinibossTile, isNfieldMinibossTile, isTgardenMinibossTile, isXroadMinibossTile, isJshoreMinibossTile, isBowyardMinibossTile, isMooncourtMinibossTile, isZgateMinibossTile, mapById, tileAt } from "./game/maps.ts";
 import { logWeaknesses, performPathAction, previewPathAction, talkLinesFor } from "./game/pathAction.ts";
 import type { BattleState, DialogueLine, Dir, GameSave, MapId, PathAction, Screen, TownNpc } from "./game/types.ts";
 
@@ -450,6 +454,29 @@ export default function App() {
     });
   }
 
+  function startMooncourtMiniboss(at: GameSave) {
+    if (at.flags.ch9Clear || at.mapId !== "mooncourt") return;
+    say([
+      {
+        speaker: "庭院悍衛",
+        portrait: "./art/portrait-officer.png",
+        text: "這庭院今夜歸我守。貂蟬？不過一個會跳舞的。",
+      },
+      {
+        speaker: heroById(at.heroId).name,
+        portrait: heroById(at.heroId).portrait,
+        text: "刀可以放下。先聽完這一曲——勸開了，就不必再動手。",
+      },
+    ]);
+    setPendingEnemies(["yellow", "moonchief"]);
+    setPendingKind("miniboss");
+    setBattleBg("./art/bg-road.png");
+    setPendingPreBattle({
+      name: "庭院悍衛",
+      threat: "悍衛橫刀：想過庭院，先過我這關。",
+    });
+  }
+
 
   function startBountyOutlaw(at: GameSave) {
     if (!at.flags.bountyAccepted || at.flags.bountyTargetDown || at.flags.bountyDone) return;
@@ -639,6 +666,25 @@ function afterWin(prev: GameSave, finished: BattleState): GameSave {
           names: next.party.map((id) => heroById(id).name),
         });
         window.setTimeout(() => setChapterClearReady(true), 2500);
+      } else if (next.chronicleId === "diaochan9" || pendingEnemies.includes("moonchief")) {
+        next.flags.ch9Clear = true;
+        next = addJournal(next, "ch9-clear");
+        patchProgress({ ch9Clear: true, ch9Started: true });
+        const clearTitle = CHRONICLES.diaochan9.clearTitle;
+        setPendingEnding([
+          {
+            speaker: heroById(next.heroId).name,
+            portrait: heroById(next.heroId).portrait,
+            text: "悍衛的刀放下了。鳳儀亭的月色暫歇，勸開的人還活著。",
+          },
+          { speaker: "系統", text: "貂蟬列傳初章結束。仍可在鳳儀亭與月下庭院活動。" },
+        ]);
+        setChapterClearReady(false);
+        setChapterClear({
+          title: clearTitle,
+          names: next.party.map((id) => heroById(id).name),
+        });
+        window.setTimeout(() => setChapterClearReady(true), 2500);
       } else if (next.chronicleId === "zhuge4" || pendingEnemies.includes("schemer")) {
         next.flags.ch4Clear = true;
         next = addJournal(next, "ch4-clear");
@@ -805,6 +851,9 @@ function afterWin(prev: GameSave, finished: BattleState): GameSave {
       if (save.mapId === "bowyard" && bump.id === "ssx-bowchief" && !save.flags.ch8Clear) {
         startBowyardMiniboss(save);
       }
+      if (save.mapId === "mooncourt" && bump.id === "dc-moonchief" && !save.flags.ch9Clear) {
+        startMooncourtMiniboss(save);
+      }
       if (save.mapId === "road" && bump.id === "bounty-outlaw") {
         startBountyOutlaw(save);
       }
@@ -880,6 +929,11 @@ function afterWin(prev: GameSave, finished: BattleState): GameSave {
       startBowyardMiniboss(next);
       return;
     }
+    if (save.mapId === "mooncourt" && !next.flags.ch9Clear && (ch === "B" || isMooncourtMinibossTile(x, y))) {
+      setSave(next);
+      startMooncourtMiniboss(next);
+      return;
+    }
     const warp = m.warps.find((w) => w.x === x && w.y === y);
     if (warp) {
       if (warp.requireFlag && !next.flags[warp.requireFlag]) {
@@ -908,6 +962,8 @@ function afterWin(prev: GameSave, finished: BattleState): GameSave {
       // miniboss path only until ch7Clear
     } else if (next.mapId === "bowyard" && !next.flags.ch8Clear) {
       // miniboss path only until ch8Clear
+    } else if (next.mapId === "mooncourt" && !next.flags.ch9Clear) {
+      // miniboss path only until ch9Clear
     } else if (encMap.encounter && (next.mapId === "road" || next.mapId === "field" || next.mapId === "merge" || next.mapId === "zgate" || next.mapId === "nfield")) {
       const max = encMap.encounter.steps;
       const fill = (next.encounterFill ?? 0) + 1;
@@ -1050,6 +1106,11 @@ function afterWin(prev: GameSave, finished: BattleState): GameSave {
       if (hit.npc.id === "ssx-bowchief" && !save.flags.ch8Clear) {
         sfx.click();
         startBowyardMiniboss(save);
+        return;
+      }
+      if (hit.npc.id === "dc-moonchief" && !save.flags.ch9Clear) {
+        sfx.click();
+        startMooncourtMiniboss(save);
         return;
       }
       setPathNpc(hit.npc);
@@ -1413,6 +1474,11 @@ function afterWin(prev: GameSave, finished: BattleState): GameSave {
             sfx.click();
             setScreen("sunshangxiangConfirm");
           }}
+          onDiaochan={() => {
+            unlockAudio();
+            sfx.click();
+            setScreen("diaochanConfirm");
+          }}
           onOpenFourRoads={() => {
             unlockAudio();
             sfx.click();
@@ -1432,6 +1498,11 @@ function afterWin(prev: GameSave, finished: BattleState): GameSave {
             unlockAudio();
             sfx.click();
             setScreen("sevenRoads");
+          }}
+          onOpenEightRoads={() => {
+            unlockAudio();
+            sfx.click();
+            setScreen("eightRoads");
           }}
           onBountyQa={() => {
             unlockAudio();
@@ -1634,6 +1705,28 @@ function afterWin(prev: GameSave, finished: BattleState): GameSave {
           }}
         />
       )}
+      {screen === "diaochanConfirm" && (
+        <ChronicleConfirm
+          chronicleId={DIAOCHAN_CHRONICLE_ID}
+          onBack={() => setScreen("title")}
+          onConfirm={() => {
+            patchProgress({ ch9Started: true });
+            const base = newDiaochanSave();
+            const s = persist({
+              ...base,
+              mapId: "mooncourt",
+              x: 7,
+              y: 3,
+              facing: "up",
+              encounterFill: 0,
+            });
+            setSave(s);
+            setScreen("world");
+            say(diaochanOpening());
+            maybeShowTips();
+          }}
+        />
+      )}
       {screen === "fourRoads" && (
         <FourRoadsPanel onBack={() => setScreen("title")} />
       )}
@@ -1645,6 +1738,9 @@ function afterWin(prev: GameSave, finished: BattleState): GameSave {
       )}
       {screen === "sevenRoads" && (
         <SevenRoadsPanel onBack={() => setScreen("title")} />
+      )}
+      {screen === "eightRoads" && (
+        <EightRoadsPanel onBack={() => setScreen("title")} />
       )}
       {screen === "settings" && (
         <SettingsPanel onBack={() => setScreen(save ? "world" : "title")} />
@@ -1910,6 +2006,27 @@ function afterWin(prev: GameSave, finished: BattleState): GameSave {
             if (save.mapId !== "bowyard" || save.flags.ch8Clear) return;
             sfx.click();
             startBowyardMiniboss(save);
+          }}
+          onQuickMooncourt={() => {
+            if (!save || line || pathNpc || menu || overnight || chapterClear || nightTalk || nightDeep) return;
+            if (save.mapId !== "fengyi") return;
+            sfx.step();
+            const next = persist({
+              ...save,
+              mapId: "mooncourt",
+              x: 7,
+              y: 3,
+              facing: "up",
+              encounterFill: 0,
+            });
+            setSave(next);
+            flash("出亭，前往月下庭院");
+          }}
+          onChallengeMoonchief={() => {
+            if (!save || line || pathNpc || menu || overnight || chapterClear || nightTalk || nightDeep) return;
+            if (save.mapId !== "mooncourt" || save.flags.ch9Clear) return;
+            sfx.click();
+            startMooncourtMiniboss(save);
           }}
           onNightTalk={() => {
             if (!save || line || pathNpc || menu || overnight || chapterClear || nightTalk || nightDeep) return;

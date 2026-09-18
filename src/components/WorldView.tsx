@@ -7,7 +7,7 @@ import Dust from "./Dust.tsx";
 import { Chevron } from "./Icon.tsx";
 
 
-const TOWN_MAPS = new Set(["xinyue", "inn", "yunzhen", "merge", "zhuolu", "chaisang", "waterfort"]);
+const TOWN_MAPS = new Set(["xinyue", "inn", "yunzhen", "merge", "zhuolu", "chaisang", "waterfort", "fengyi"]);
 
 const CHATTER: Record<string, string[]> = {
   guanyu: ["義氣在前。", "先削盾。"],
@@ -56,6 +56,8 @@ export default function WorldView({
   onChallengeRaider,
   onQuickBowyard,
   onChallengeBowchief,
+  onQuickMooncourt,
+  onChallengeMoonchief,
 }: {
   map: MapDef;
   save: GameSave;
@@ -82,6 +84,8 @@ export default function WorldView({
   onChallengeRaider?: () => void;
   onQuickBowyard?: () => void;
   onChallengeBowchief?: () => void;
+  onQuickMooncourt?: () => void;
+  onChallengeMoonchief?: () => void;
 }) {
   const hero = heroById(save.heroId);
   const npcs = visibleNpcs(map, save);
@@ -577,6 +581,34 @@ export default function WorldView({
               挑戰弓頭目
             </button>
           )}
+          {save.mapId === "fengyi" && onQuickMooncourt && (
+            <button
+              type="button"
+              className="btn btn-primary quick-travel"
+              data-qa="exit-mooncourt"
+              disabled={uiBlocked}
+              onClick={() => {
+                if (document.activeElement instanceof HTMLElement) document.activeElement.blur();
+                onQuickMooncourt();
+              }}
+            >
+              出亭・庭院
+            </button>
+          )}
+          {save.mapId === "mooncourt" && !save.flags.ch9Clear && onChallengeMoonchief && (
+            <button
+              type="button"
+              className="btn btn-primary quick-travel"
+              data-qa="challenge-moonchief"
+              disabled={uiBlocked}
+              onClick={() => {
+                if (document.activeElement instanceof HTMLElement) document.activeElement.blur();
+                onChallengeMoonchief();
+              }}
+            >
+              挑戰庭院悍衛
+            </button>
+          )}
           {save.mapId === "merge" && !save.flags.nightTalkDone && onNightTalk && (
             <button
               type="button"
@@ -612,8 +644,8 @@ export default function WorldView({
 }
 
 export function npcPortrait(npc: TownNpc): string {
-  if (npc.id === "singer" || npc.id === "captive") return "./art/portrait-diaochan.png";
-  if (npc.id === "lookout") return "./art/portrait-officer.png";
+  if (npc.id === "singer" || npc.id === "captive" || npc.id === "dc-maid" || npc.id === "dc-dancer") return "./art/portrait-diaochan.png";
+  if (npc.id === "lookout" || npc.id === "dc-moonchief") return "./art/portrait-officer.png";
   if (npc.id === "vendor" || npc.id === "innkeeper" || npc.id === "yz-vendor") return "./art/portrait-caocao.png";
   if (npc.id === "elder" || npc.id === "bard" || npc.id === "yz-elder" || npc.id === "zg-elder" || npc.id === "zg-scholar") return "./art/portrait-zhuge.png";
   if (npc.id === "drinker" || npc.id === "zf-drinker" || npc.id === "zf-gatechief") return "./art/portrait-zhangfei.png";
