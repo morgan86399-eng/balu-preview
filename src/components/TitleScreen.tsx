@@ -1229,19 +1229,32 @@ export function CharacterSelect({
   const hero = HEROES.find((h) => h.id === picked);
   useGSAP(
     () => {
+      const cards = gsap.utils.toArray<HTMLElement>(".hero-card");
       const mm = gsap.matchMedia();
       mm.add("(prefers-reduced-motion: no-preference)", () => {
-        gsap.from(".hero-card", {
-          autoAlpha: 0,
-          y: 16,
-          duration: 0.45,
-          stagger: 0.04,
-          ease: "power2.out",
+        const tl = gsap.timeline({
+          onComplete: () => {
+            // Never leave the 9th (or any) card at opacity 0 / visibility:hidden
+            // after a killed/re-run `from` tween.
+            gsap.set(cards, { clearProps: "opacity,visibility,transform" });
+          },
         });
+        tl.fromTo(
+          cards,
+          { y: 12, opacity: 0 },
+          {
+            y: 0,
+            opacity: 1,
+            duration: 0.4,
+            stagger: 0.03,
+            ease: "power2.out",
+            overwrite: true,
+          },
+        );
       });
       return () => mm.revert();
     },
-    { scope: root },
+    { scope: root, dependencies: [] },
   );
   return (
     <section ref={root} className="screen select-stage">
@@ -1255,16 +1268,20 @@ export function CharacterSelect({
               key={h.id}
               type="button"
               className={`hero-card${picked === h.id ? " on" : ""}`}
+              data-qa={`hero-card-${h.id}`}
+              data-hero={h.id}
               onClick={() => onPick(h.id)}
               aria-pressed={picked === h.id}
             >
-              <img src={h.portrait} alt={h.name} width={240} height={320} />
-              <figcaption>
+              <span className="hero-card-art">
+                <img src={h.portrait} alt={h.name} width={240} height={320} />
+              </span>
+              <span className="hero-card-meta">
                 <strong>{h.name}</strong>
                 <span>
                   {h.title} · {h.jobName} · {h.pathActionName}
                 </span>
-              </figcaption>
+              </span>
             </button>
           ))}
         </div>

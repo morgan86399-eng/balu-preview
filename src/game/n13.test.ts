@@ -1,4 +1,4 @@
-import { readFileSync } from "node:fs";
+import { readFileSync, statSync } from "node:fs";
 import {
   emptyProgress,
   sevenRoadsUnlocked,
@@ -140,10 +140,36 @@ console.log("ok diaochan save + maps");
   assert(app.includes("moonchief"), "moonchief battle");
   const lb = HEROES.find((h) => h.id === "liubei");
   const gy = HEROES.find((h) => h.id === "guanyu");
+  const dc = HEROES.find((h) => h.id === "diaochan");
+  assert(HEROES.length === 9, "nine select heroes");
+  assert(HEROES[8]?.id === "liubei", "9th card is liubei");
   assert(lb?.portrait === "./art/portrait-liubei.png", "liubei path");
   assert(gy?.portrait === "./art/portrait-guanyu.png", "guanyu path");
+  assert(dc?.portrait === "./art/portrait-diaochan.png", "diaochan path");
   assert(lb!.portrait !== gy!.portrait, "liubei !== guanyu path");
-  console.log("ok", "n13 title QA strings + eight roads + portraits");
+  const selectFn = title.slice(title.indexOf("export function CharacterSelect"), title.indexOf("export function SettingsPanel"));
+  assert(selectFn.includes("data-qa={`hero-card-${h.id}`}"), "select cards tagged");
+  assert(selectFn.includes("HEROES.map((h) =>"), "select maps all heroes");
+  assert(!selectFn.includes("HEROES.slice"), "select does not slice heroes");
+  assert(!selectFn.includes("HEROES.filter"), "select does not filter heroes");
+  assert(selectFn.includes("hero-card-art"), "art frame in select");
+  assert(selectFn.includes("hero-card-meta"), "name/tags meta in select");
+  assert(!selectFn.includes("autoAlpha"), "gsap from autoAlpha removed from select");
+  const css = readFileSync("src/styles/game.css", "utf8");
+  assert(css.includes(".hero-card-art"), "css art frame");
+  assert(css.includes("object-fit: cover"), "object-fit cover");
+  const png = readFileSync("public/art/portrait-liubei.png");
+  assert(png.subarray(0, 8).equals(Buffer.from([137, 80, 78, 71, 13, 10, 26, 10])), "png magic");
+  const w = png.readUInt32BE(16);
+  const h = png.readUInt32BE(20);
+  const colorType = png[25];
+  assert(w === 540 && h === 720, `liubei 540x720 not ${w}x${h}`);
+  assert(colorType === 2, `liubei rgb color type ${colorType}`);
+  const lbBytes = statSync("public/art/portrait-liubei.png").size;
+  const gyBytes = statSync("public/art/portrait-guanyu.png").size;
+  assert(lbBytes !== 556706, "not ultra-wide n11 file");
+  assert(lbBytes !== gyBytes, "size != guanyu");
+  console.log("ok", "n13 title QA strings + eight roads + portraits", w, h, lbBytes);
 }
 
 console.log("n13 tests passed");

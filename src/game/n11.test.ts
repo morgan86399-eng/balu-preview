@@ -79,7 +79,7 @@ console.log("ok zhouyu save + maps");
   const lbBytes = statSync("public/art/portrait-liubei.png").size;
   const gyBytes = statSync("public/art/portrait-guanyu.png").size;
   assert(lbBytes !== 1659891, "not the labeled landscape");
-  assert(lbBytes === 556706, "designer yellow/red hq bytes");
+  assert(lbBytes !== 556706, "not the n11 ultra-wide hq");
   assert(lbBytes !== gyBytes, "liubei/guanyu file sizes differ");
   console.log("ok", "n11 title QA strings + distinct portraits", lbBytes, gyBytes);
 }

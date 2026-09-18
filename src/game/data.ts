@@ -271,6 +271,7 @@ export const TRAVELER: Record<string, string> = {
   zhouyu: "zhuge",
   sunshangxiang: "diaochan",
   diaochan: "zhouyu",
+  liubei: "zhaoyun",
 };
 
 /** Extra dialogue unlocked after successful inquire/allure on that NPC. */

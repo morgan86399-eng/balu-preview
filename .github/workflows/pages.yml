@@ -37,12 +37,12 @@ jobs:
         run: npm run build
       - name: Restore pinned CDN index
         # vite build + write-cdn-index may rewrite pages/index.html to @main;
-        # the committed pin (commit SHA + ?v=n13) is the live source of truth.
+        # the committed pin (commit SHA + ?v=n13fix1) is the live source of truth.
         run: git checkout -- pages/index.html && cp pages/index.html dist/index.html
       - name: Verify N13 live index
         run: |
           set -euo pipefail
-          grep -F "?v=n13" pages/index.html dist/index.html
+          grep -F "?v=n13fix1" pages/index.html dist/index.html
           grep -F "portrait-liubei.png" src/game/data.ts
           if grep -n 'src=.*n10-hotfix' pages/index.html dist/index.html; then
             echo "N10 hotfix script must not be loaded on live"
@@ -62,12 +62,21 @@ jobs:
           grep -F "周瑜短線測試" "preview-assets/$(basename "$JS")"
           python3 - <<'PY'
           from pathlib import Path
-          lb = Path("public/art/portrait-liubei.png").stat().st_size
+          import struct
+          png = Path("public/art/portrait-liubei.png").read_bytes()
+          w, h = struct.unpack(">II", png[16:24])
+          color_type = png[25]
+          lb = len(png)
           gy = Path("public/art/portrait-guanyu.png").stat().st_size
           assert lb != 1659891, lb
+          assert lb != 556706, lb
           assert lb != gy, (lb, gy)
-          print("portraits ok", lb, gy)
+          assert (w, h) == (540, 720), (w, h)
+          assert color_type == 2, color_type
+          print("portraits ok", lb, gy, w, h)
           PY
+          grep -F "hero-card-" "preview-assets/$(basename "$JS")"
+          grep -F "hero-card-art" "preview-assets/$(basename "$JS")"
       - name: Request user Pages sync
         continue-on-error: true
         env:

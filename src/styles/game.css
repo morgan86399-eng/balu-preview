@@ -236,7 +236,11 @@ button:focus-visible {
   .select-grid { grid-template-columns: repeat(4, minmax(0, 1fr)); }
 }
 .hero-card {
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
   min-width: 0;
+  min-height: 0;
   text-align: left;
   padding: 0;
   overflow: hidden;
@@ -244,29 +248,50 @@ button:focus-visible {
   background: var(--panel);
   border: 1px solid var(--line);
   border-radius: 10px;
+  /* Visible even if a GSAP intro tween is interrupted */
+  opacity: 1;
+  visibility: visible;
 }
+.hero-card-art {
+  display: block;
+  width: 100%;
+  aspect-ratio: 3 / 4;
+  max-height: min(28vh, 220px);
+  overflow: hidden;
+  background: #1a140c;
+  flex: 0 0 auto;
+}
+.hero-card-art img,
 .hero-card img {
   width: 100%;
-  aspect-ratio: 3/4;
-  max-height: min(28vh, 220px);
+  height: 100%;
+  max-width: none;
+  max-height: none;
+  aspect-ratio: auto;
   object-fit: cover;
-  object-position: top;
+  object-position: top center;
   filter: contrast(1.05);
 }
 @media (max-height: 720px) {
-  .hero-card img { max-height: min(22vh, 160px); }
+  .hero-card-art { max-height: min(22vh, 160px); }
   .select-inner h1 { font-size: 1.25rem; margin: 4px 0; }
 }
 .hero-card.on { outline: 2px solid var(--gold); }
+.hero-card-meta,
 .hero-card figcaption {
+  flex: 0 0 auto;
   padding: 8px 10px 10px;
+  background: var(--panel);
+  position: relative;
+  z-index: 1;
 }
 .hero-card strong {
   display: block;
   font-family: var(--font-serif);
   font-size: 1.05rem;
 }
-.hero-card span {
+.hero-card-meta span,
+.hero-card figcaption span {
   display: block;
   color: var(--muted);
   font-size: 0.78rem;
