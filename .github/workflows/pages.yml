@@ -44,8 +44,8 @@ jobs:
           set -euo pipefail
           grep -F "?v=n11fix1" pages/index.html dist/index.html
           grep -F "portrait-liubei.png" src/game/data.ts
-          if grep -n "n10-hotfix.js" pages/index.html dist/index.html; then
-            echo "n10-hotfix.js must not be loaded on live"
+          if grep -n 'src=.*n10-hotfix' pages/index.html dist/index.html; then
+            echo "N10 hotfix script must not be loaded on live"
             exit 1
           fi
           JS=$(grep -oE 'preview-assets/index-[^"?]+\.js' pages/index.html | head -1)
