@@ -15,6 +15,10 @@ function ac(): AudioContext | null {
 export function unlockAudio(): void {
   const c = ac();
   if (c?.state === "suspended") void c.resume();
+  // Browser autoplay policy: resume HTMLAudioElement after a user gesture.
+  if (bgmEl && musicEnabled() && bgmEl.paused && desiredTrack) {
+    void bgmEl.play().catch(() => {});
+  }
 }
 
 function beep(freq: number, dur: number, type: OscillatorType, gain = 0.05): void {
@@ -35,9 +39,79 @@ function beep(freq: number, dur: number, type: OscillatorType, gain = 0.05): voi
   o.stop(t + dur);
 }
 
-/** Music mute flag — no BGM asset yet; callers may check before future play. */
+/** Music mute flag from settings. */
 export function musicEnabled(): boolean {
   return loadSettings().music;
+}
+
+export type BgmTrack = "explore" | "battle";
+
+const BGM_SRC: Record<BgmTrack, string> = {
+  explore: "./audio/bgm-explore.mp3",
+  battle: "./audio/bgm-battle.mp3",
+};
+
+let bgmEl: HTMLAudioElement | null = null;
+let desiredTrack: BgmTrack | null = null;
+let activeTrack: BgmTrack | null = null;
+
+function ensureBgmEl(): HTMLAudioElement | null {
+  if (typeof window === "undefined" || typeof Audio === "undefined") return null;
+  if (!bgmEl) {
+    bgmEl = new Audio();
+    bgmEl.loop = true;
+    bgmEl.preload = "auto";
+    bgmEl.volume = 0.45;
+  }
+  return bgmEl;
+}
+
+function stopBgmInternal(): void {
+  if (!bgmEl) return;
+  bgmEl.pause();
+  bgmEl.removeAttribute("src");
+  bgmEl.load();
+  activeTrack = null;
+}
+
+/**
+ * Request a BGM track. Title / town / world map → explore; battle → battle.
+ * Pass null to stop. Respects settings.music (muted → silence).
+ */
+export function setBgm(track: BgmTrack | null): void {
+  desiredTrack = track;
+  refreshBgm();
+}
+
+/** Re-apply desired track vs current music mute flag (call after settings apply). */
+export function refreshBgm(): void {
+  if (typeof window === "undefined") return;
+  if (!musicEnabled() || !desiredTrack) {
+    stopBgmInternal();
+    return;
+  }
+  const el = ensureBgmEl();
+  if (!el) return;
+  if (activeTrack === desiredTrack && el.src) {
+    if (el.paused) void el.play().catch(() => {});
+    return;
+  }
+  el.loop = true;
+  el.src = BGM_SRC[desiredTrack];
+  activeTrack = desiredTrack;
+  void el.play().catch(() => {
+    // Autoplay blocked until unlockAudio / user gesture — retry there.
+  });
+}
+
+export function stopBgm(): void {
+  desiredTrack = null;
+  stopBgmInternal();
+}
+
+/** Map UI screen → explore vs battle BGM. */
+export function bgmForScreen(screen: string): BgmTrack {
+  return screen === "battle" ? "battle" : "explore";
 }
 
 export const sfx = {
