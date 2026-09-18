@@ -37,7 +37,7 @@ assert(zhouyuStatus() === "未開", "zhouyu idle");
 assert(!sixRoadsUnlocked(), "six locked");
 assert(sixRoadsLockHint().includes("曹操列傳") || sixRoadsLockHint().includes("關羽"), "six hint");
 
-assert(CHRONICLES.zhouyu7.clearTitle.includes("周瑜"), "clear title");
+assert(CHRONICLES.zhouyu7.clearTitle === "周瑜列傳・初章既竟", "clear title");
 assert(ZHOUYU_CHRONICLE_ID === "zhouyu7", "id");
 assert(MAPS.chaisang && MAPS.jshore, "maps");
 assert(isJshoreMinibossTile(7, 1), "boss tile");
@@ -79,6 +79,7 @@ console.log("ok zhouyu save + maps");
   const lbBytes = statSync("public/art/portrait-liubei.png").size;
   const gyBytes = statSync("public/art/portrait-guanyu.png").size;
   assert(lbBytes !== 1659891, "not the labeled landscape");
+  assert(lbBytes === 556706, "designer yellow/red hq bytes");
   assert(lbBytes !== gyBytes, "liubei/guanyu file sizes differ");
   console.log("ok", "n11 title QA strings + distinct portraits", lbBytes, gyBytes);
 }
