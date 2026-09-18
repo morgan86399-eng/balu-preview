@@ -189,7 +189,7 @@ function assert(cond: unknown, msg: string): void {
     zhouyu: "./art/portrait-zhouyu.png",
     sunshangxiang: "./art/portrait-sunshangxiang.png",
     diaochan: "./art/portrait-diaochan.png",
-    liubei: "./art/portrait-liubei.png",
+    liubei: "./art/portrait-liubei-n11.png",
   };
   for (const [id, portrait] of Object.entries(expected)) {
     const h = HEROES.find((x) => x.id === id);
