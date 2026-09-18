@@ -1,0 +1,26 @@
+{
+  "name": "ba-lu-liezhuan",
+  "private": true,
+  "version": "0.1.0",
+  "type": "module",
+  "scripts": {
+    "dev": "vite --host 127.0.0.1 --port 5177",
+    "build": "vite build",
+    "preview": "vite preview --host 127.0.0.1 --port 4177",
+    "test": "tsx src/game/combat.test.ts && tsx src/game/view.test.ts && tsx src/game/pathAction.test.ts && tsx src/game/n5.test.ts && tsx src/game/n6.test.ts && tsx src/game/n7.test.ts && tsx src/game/n8.test.ts && tsx src/game/n9.test.ts && tsx src/game/n10.test.ts"
+  },
+  "dependencies": {
+    "@gsap/react": "^2.1.2",
+    "gsap": "^3.15.0",
+    "react": "^19.1.1",
+    "react-dom": "^19.1.1"
+  },
+  "devDependencies": {
+    "@types/react": "^19.1.12",
+    "@types/react-dom": "^19.1.9",
+    "@vitejs/plugin-react": "^5.0.2",
+    "tsx": "^4.23.13",
+    "typescript": "^5.9.2",
+    "vite": "^7.1.5"
+  }
+}
