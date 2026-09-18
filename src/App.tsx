@@ -7,6 +7,7 @@ import TitleScreen, {
   ChronicleConfirm,
   FourRoadsPanel,
   FiveRoadsPanel,
+  SixRoadsPanel,
   PartySelectPanel,
   SaveSlotsPanel,
   SettingsPanel,
@@ -49,6 +50,9 @@ import {
   liubeiOpening,
   caocaoOpening,
   newCaocaoSave,
+  zhouyuOpening,
+  newZhouyuSave,
+  ZHOUYU_CHRONICLE_ID,
 } from "./game/chronicles.ts";
 import {
   confluenceUnlocked,
@@ -69,7 +73,7 @@ import {
 import { PARTNER, PATH_LABEL, heroById } from "./game/data.ts";
 import { ITEMS, expToNext, itemById, isEquippable } from "./game/items.ts";
 import { DELTA } from "./game/view.ts";
-import { blockedTile, isFieldMinibossTile, isMergeMinibossTile, isNfieldMinibossTile, isTgardenMinibossTile, isXroadMinibossTile, isZgateMinibossTile, mapById, tileAt } from "./game/maps.ts";
+import { blockedTile, isFieldMinibossTile, isMergeMinibossTile, isNfieldMinibossTile, isTgardenMinibossTile, isXroadMinibossTile, isJshoreMinibossTile, isZgateMinibossTile, mapById, tileAt } from "./game/maps.ts";
 import { logWeaknesses, performPathAction, previewPathAction, talkLinesFor } from "./game/pathAction.ts";
 import type { BattleState, DialogueLine, Dir, GameSave, MapId, PathAction, Screen, TownNpc } from "./game/types.ts";
 
@@ -396,6 +400,29 @@ export default function App() {
     });
   }
 
+  function startJshoreMiniboss(at: GameSave) {
+    if (at.flags.ch7Clear || at.mapId !== "jshore") return;
+    say([
+      {
+        speaker: "江賊小頭目",
+        portrait: "./art/portrait-bandit.png",
+        text: "這段江面從今起歸我們收過路錢。周瑜？不過書生。",
+      },
+      {
+        speaker: heroById(at.heroId).name,
+        portrait: heroById(at.heroId).portrait,
+        text: "江上笳鼓，豈容賊旗亂鳴。今日拔了你的寨。",
+      },
+    ]);
+    setPendingEnemies(["yellow", "raider"]);
+    setPendingKind("miniboss");
+    setBattleBg("./art/bg-road.png");
+    setPendingPreBattle({
+      name: "江賊小頭目",
+      threat: "小頭目橫刀：想過江岸，先過我這關。",
+    });
+  }
+
 
   function startBountyOutlaw(at: GameSave) {
     if (!at.flags.bountyAccepted || at.flags.bountyTargetDown || at.flags.bountyDone) return;
@@ -468,8 +495,15 @@ export default function App() {
     window.setTimeout(() => {
       setTravelBanner(false);
       go();
-    }, 1200);
+    }, 2500);
   }
+
+  /** QA / preview: show the travel banner for ≥2.5s without changing map. */
+  function previewTravelBanner() {
+    setTravelBanner(true);
+    window.setTimeout(() => setTravelBanner(false), 2500);
+  }
+
 
 
 function afterWin(prev: GameSave, finished: BattleState): GameSave {
@@ -533,6 +567,25 @@ function afterWin(prev: GameSave, finished: BattleState): GameSave {
             text: "探馬的旗倒了。許昌官道的風聲，暫入袖中。",
           },
           { speaker: "系統", text: "曹操列傳初章結束。仍可在許昌郊與官道活動。" },
+        ]);
+        setChapterClearReady(false);
+        setChapterClear({
+          title: clearTitle,
+          names: next.party.map((id) => heroById(id).name),
+        });
+        window.setTimeout(() => setChapterClearReady(true), 2500);
+      } else if (next.chronicleId === "zhouyu7" || pendingEnemies.includes("raider")) {
+        next.flags.ch7Clear = true;
+        next = addJournal(next, "ch7-clear");
+        patchProgress({ ch7Clear: true, ch7Started: true });
+        const clearTitle = CHRONICLES.zhouyu7.clearTitle;
+        setPendingEnding([
+          {
+            speaker: heroById(next.heroId).name,
+            portrait: heroById(next.heroId).portrait,
+            text: "江賊的旗倒了。柴桑水寨的鼓聲，暫歸都督麾下。",
+          },
+          { speaker: "系統", text: "周瑜列傳初章結束。仍可在柴桑碼頭與江岸活動。" },
         ]);
         setChapterClearReady(false);
         setChapterClear({
@@ -700,6 +753,9 @@ function afterWin(prev: GameSave, finished: BattleState): GameSave {
       if (save.mapId === "xroad" && bump.id === "cc-enforcer" && !save.flags.ch6Clear) {
         startXroadMiniboss(save);
       }
+      if (save.mapId === "jshore" && bump.id === "zy-raider" && !save.flags.ch7Clear) {
+        startJshoreMiniboss(save);
+      }
       if (save.mapId === "road" && bump.id === "bounty-outlaw") {
         startBountyOutlaw(save);
       }
@@ -765,6 +821,11 @@ function afterWin(prev: GameSave, finished: BattleState): GameSave {
       startXroadMiniboss(next);
       return;
     }
+    if (save.mapId === "jshore" && !next.flags.ch7Clear && (ch === "B" || isJshoreMinibossTile(x, y))) {
+      setSave(next);
+      startJshoreMiniboss(next);
+      return;
+    }
     const warp = m.warps.find((w) => w.x === x && w.y === y);
     if (warp) {
       if (warp.requireFlag && !next.flags[warp.requireFlag]) {
@@ -789,6 +850,8 @@ function afterWin(prev: GameSave, finished: BattleState): GameSave {
       // miniboss path only until ch5Clear
     } else if (next.mapId === "xroad" && !next.flags.ch6Clear) {
       // miniboss path only until ch6Clear
+    } else if (next.mapId === "jshore" && !next.flags.ch7Clear) {
+      // miniboss path only until ch7Clear
     } else if (encMap.encounter && (next.mapId === "road" || next.mapId === "field" || next.mapId === "merge" || next.mapId === "zgate" || next.mapId === "nfield")) {
       const max = encMap.encounter.steps;
       const fill = (next.encounterFill ?? 0) + 1;
@@ -921,6 +984,11 @@ function afterWin(prev: GameSave, finished: BattleState): GameSave {
       if (hit.npc.id === "cc-enforcer" && !save.flags.ch6Clear) {
         sfx.click();
         startXroadMiniboss(save);
+        return;
+      }
+      if (hit.npc.id === "zy-raider" && !save.flags.ch7Clear) {
+        sfx.click();
+        startJshoreMiniboss(save);
         return;
       }
       setPathNpc(hit.npc);
@@ -1274,6 +1342,11 @@ function afterWin(prev: GameSave, finished: BattleState): GameSave {
             sfx.click();
             setScreen("caocaoConfirm");
           }}
+          onZhouyu={() => {
+            unlockAudio();
+            sfx.click();
+            setScreen("zhouyuConfirm");
+          }}
           onOpenFourRoads={() => {
             unlockAudio();
             sfx.click();
@@ -1283,6 +1356,11 @@ function afterWin(prev: GameSave, finished: BattleState): GameSave {
             unlockAudio();
             sfx.click();
             setScreen("fiveRoads");
+          }}
+          onOpenSixRoads={() => {
+            unlockAudio();
+            sfx.click();
+            setScreen("sixRoads");
           }}
           onBountyQa={() => {
             unlockAudio();
@@ -1329,6 +1407,11 @@ function afterWin(prev: GameSave, finished: BattleState): GameSave {
             unlockAudio();
             sfx.click();
             setScreen("settings");
+          }}
+          onPreviewTravel={() => {
+            unlockAudio();
+            sfx.click();
+            previewTravelBanner();
           }}
         />
       )}
@@ -1436,11 +1519,36 @@ function afterWin(prev: GameSave, finished: BattleState): GameSave {
           }}
         />
       )}
+      {screen === "zhouyuConfirm" && (
+        <ChronicleConfirm
+          chronicleId={ZHOUYU_CHRONICLE_ID}
+          onBack={() => setScreen("title")}
+          onConfirm={() => {
+            patchProgress({ ch7Started: true });
+            const base = newZhouyuSave();
+            const s = persist({
+              ...base,
+              mapId: "jshore",
+              x: 7,
+              y: 3,
+              facing: "up",
+              encounterFill: 0,
+            });
+            setSave(s);
+            setScreen("world");
+            say(zhouyuOpening());
+            maybeShowTips();
+          }}
+        />
+      )}
       {screen === "fourRoads" && (
         <FourRoadsPanel onBack={() => setScreen("title")} />
       )}
       {screen === "fiveRoads" && (
         <FiveRoadsPanel onBack={() => setScreen("title")} />
+      )}
+      {screen === "sixRoads" && (
+        <SixRoadsPanel onBack={() => setScreen("title")} />
       )}
       {screen === "settings" && (
         <SettingsPanel onBack={() => setScreen(save ? "world" : "title")} />

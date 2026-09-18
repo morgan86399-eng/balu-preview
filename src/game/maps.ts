@@ -920,6 +920,127 @@ export const MAPS: Record<string, MapDef> = {
     },
   },
 
+  chaisang: {
+    id: "chaisang",
+    name: "柴桑碼頭",
+    bg: "./art/bg-town.png",
+    lighting: "dusk",
+    view: { northY: 0.2, southY: 0.86, northHalf: 0.18, southHalf: 0.46, centerX: 0.5 },
+    tiles: [
+      "#############",
+      "#...GGGGG...#",
+      "#...........#",
+      "#hh.......hh#",
+      "#...........#",
+      "#...........#",
+      "#g.........g#",
+      "#...........#",
+      "#....www....#",
+      "#...........#",
+      "#...........#",
+      "#############",
+    ],
+    npcs: [
+      {
+        id: "zy-boatman",
+        name: "船夫",
+        x: 4,
+        y: 7,
+        pathHint: "inquire",
+        talk: [
+          "船夫擦著槳：江賊卡在北岸。都督若肯鼓士氣，我們敢夜航。",
+          "出北口就是江岸。先探聽再鼓舞，較穩。",
+        ],
+      },
+      {
+        id: "zy-drummer",
+        name: "鼓吏",
+        x: 9,
+        y: 5,
+        pathHint: "challenge",
+        talk: [
+          "鼓吏抱桴：號令一亂，賊人就敢搶碼頭。都督鼓舞一下便好。",
+        ],
+      },
+      {
+        id: "zy-scout",
+        name: "水軍斥候",
+        x: 7,
+        y: 5,
+        pathHint: "inquire",
+        talk: [
+          "斥候指北：北岸旗下就是江賊小頭目。探聽清楚再上。",
+        ],
+      },
+    ],
+    warps: [
+      { x: 4, y: 1, to: "jshore", tx: 7, ty: 10, prompt: "出碼頭，前往柴桑江岸" },
+      { x: 5, y: 1, to: "jshore", tx: 7, ty: 10, prompt: "出碼頭，前往柴桑江岸" },
+      { x: 6, y: 1, to: "jshore", tx: 7, ty: 10, prompt: "出碼頭，前往柴桑江岸" },
+      { x: 7, y: 1, to: "jshore", tx: 7, ty: 10, prompt: "出碼頭，前往柴桑江岸" },
+      { x: 8, y: 1, to: "jshore", tx: 7, ty: 10, prompt: "出碼頭，前往柴桑江岸" },
+      { x: 5, y: 2, to: "jshore", tx: 7, ty: 10, prompt: "出碼頭，前往柴桑江岸" },
+      { x: 6, y: 2, to: "jshore", tx: 7, ty: 10, prompt: "出碼頭，前往柴桑江岸" },
+      { x: 7, y: 2, to: "jshore", tx: 7, ty: 10, prompt: "出碼頭，前往柴桑江岸" },
+    ],
+  },
+  jshore: {
+    id: "jshore",
+    name: "柴桑江岸",
+    bg: "./art/bg-road.png",
+    lighting: "noon",
+    view: { northY: 0.22, southY: 0.8, northHalf: 0.14, southHalf: 0.38, centerX: 0.5 },
+    tiles: [
+      "###############",
+      "#tt...BBB...tt#",
+      "#tt...BBB...tt#",
+      "#.....rrr.....#",
+      "#tt...rrr...tt#",
+      "#.....rrr.....#",
+      "#tt.........tt#",
+      "#tt.........tt#",
+      "#.....rrr.....#",
+      "#tt.........tt#",
+      "#......G......#",
+      "###############",
+    ],
+    npcs: [
+      {
+        id: "zy-raider",
+        name: "江賊小頭目",
+        x: 7,
+        y: 1,
+        pathHint: "challenge",
+        hideFlag: "ch7Clear",
+        talk: [
+          "小頭目揮刀：這段江面從今起歸我們收過路錢。周瑜？不過書生。",
+        ],
+      },
+      {
+        id: "zy-merchant",
+        name: "客商",
+        x: 5,
+        y: 8,
+        pathHint: "purchase",
+        talk: [
+          "客商苦著臉：江賊要路錢。都督若肯出面，我們跟您的旗走。",
+        ],
+      },
+    ],
+    warps: [
+      { x: 7, y: 10, to: "chaisang", tx: 6, ty: 2, prompt: "返回柴桑碼頭" },
+    ],
+    encounter: {
+      steps: 5,
+      softOnly: true,
+      packs: [
+        ["yellow"],
+        ["yellow"],
+        ["archer"],
+        ["yellow", "yellow"],
+      ],
+    },
+  },
 
 };
 
@@ -1026,6 +1147,26 @@ export const XROAD_MINIBOSS_COORDS: ReadonlyArray<{ x: number; y: number }> = [
 export function isXroadMinibossTile(x: number, y: number): boolean {
   return XROAD_MINIBOSS_COORDS.some((c) => c.x === x && c.y === y);
 }
+
+/** Soft packs suppressed on jshore until ch7Clear. */
+export function jshoreSoftEncountersSuppressed(flags: { ch7Clear?: boolean }): boolean {
+  return !flags.ch7Clear;
+}
+
+/** Zhou Yu jshore miniboss zone — 江賊小頭目. */
+export const JSHORE_MINIBOSS_COORDS: ReadonlyArray<{ x: number; y: number }> = [
+  { x: 6, y: 1 },
+  { x: 7, y: 1 },
+  { x: 8, y: 1 },
+  { x: 6, y: 2 },
+  { x: 7, y: 2 },
+  { x: 8, y: 2 },
+];
+
+export function isJshoreMinibossTile(x: number, y: number): boolean {
+  return JSHORE_MINIBOSS_COORDS.some((c) => c.x === x && c.y === y);
+}
+
 
 export function mapById(id: string): MapDef {
   const m = MAPS[id];

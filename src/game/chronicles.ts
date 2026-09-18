@@ -97,6 +97,17 @@ export const CHRONICLES: Record<ChronicleId, ChronicleDef> = {
     startY: 4,
     partnerId: "zhuge",
   },
+  zhouyu7: {
+    id: "zhouyu7",
+    heroId: "zhouyu",
+    title: "周瑜列傳",
+    summary: "柴桑江岸笳鼓漸起。先鼓舞士氣、探聽敵情，再擊破江賊小頭目。",
+    clearTitle: "周瑜列傳・初章既竟",
+    startMap: "chaisang",
+    startX: 6,
+    startY: 4,
+    partnerId: "sunshangxiang",
+  },
 };
 
 export const SECOND_CHRONICLE_ID: ChronicleId = "zhaoyun2";
@@ -105,6 +116,7 @@ export const ZHANGFEI_CHRONICLE_ID: ChronicleId = "zhangfei3";
 export const ZHUGE_CHRONICLE_ID: ChronicleId = "zhuge4";
 export const LIUBEI_CHRONICLE_ID: ChronicleId = "liubei5";
 export const CAOCAO_CHRONICLE_ID: ChronicleId = "caocao6";
+export const ZHOUYU_CHRONICLE_ID: ChronicleId = "zhouyu7";
 
 export function chronicleById(id: ChronicleId): ChronicleDef {
   return CHRONICLES[id] ?? CHRONICLES.ch1;
@@ -471,6 +483,64 @@ export function newCaocaoSave(): GameSave {
     steps: 0,
     chapter: 1,
     chronicleId: "caocao6",
+    equip: {},
+    encounterFill: 0,
+    pathMastery: {},
+  };
+}
+
+export function zhouyuOpening(): DialogueLine[] {
+  const h = heroById("zhouyu");
+  return [
+    {
+      speaker: h.name,
+      portrait: h.portrait,
+      text: "柴桑的風帶著水氣。江賊在對岸紮寨，商船不敢夜航。",
+    },
+    {
+      speaker: h.name,
+      portrait: h.portrait,
+      text: "先聽碼頭與鼓吏的話，再上江岸。鼓聲一亂，就是動手的時機。",
+    },
+    {
+      speaker: "系統",
+      text: "這是周瑜列傳短線。擊敗江岸小頭目即可寫完初章。",
+    },
+  ];
+}
+
+export function newZhouyuSave(): GameSave {
+  const def = CHRONICLES.zhouyu7;
+  const heroId = def.heroId;
+  const party = def.partnerId ? [heroId, def.partnerId] : [heroId];
+  const vitalsMap: GameSave["vitals"] = {};
+  for (const id of party) vitalsMap[id] = vitals(id, 1);
+  return {
+    version: 2,
+    heroId,
+    party,
+    mapId: def.startMap,
+    x: def.startX,
+    y: def.startY,
+    facing: "up",
+    flags: {
+      companionJoined: Boolean(def.partnerId),
+      gotIronSpear: true,
+      ch7Started: true,
+    },
+    gold: 90,
+    items: { herb: 2, salve: 0, oil: 1, "iron-spear": 1, "leather-armor": 1 },
+    inquired: [],
+    weaknessLog: {},
+    journal: ["ch7-start"],
+    clues: ["柴桑江岸有江賊小頭目。"],
+    hour: 10,
+    level: 1,
+    exp: 0,
+    vitals: vitalsMap,
+    steps: 0,
+    chapter: 1,
+    chronicleId: "zhouyu7",
     equip: {},
     encounterFill: 0,
     pathMastery: {},

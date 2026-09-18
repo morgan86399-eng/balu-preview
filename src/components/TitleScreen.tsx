@@ -27,6 +27,9 @@ import {
   zhugeStatus,
   liubeiStatus,
   caocaoStatus,
+  zhouyuStatus,
+  sixRoadsUnlocked,
+  sixRoadsLockHint,
   emptyProgress,
   fourRoadsUnlocked,
   fourRoadsLockHint,
@@ -66,13 +69,16 @@ export default function TitleScreen({
   onZhuge,
   onLiubei,
   onCaocao,
+  onZhouyu,
   onOpenFourRoads,
   onOpenFiveRoads,
+  onOpenSixRoads,
   onBountyQa,
   onOpenSaveSlots,
   onOpenWorldMap,
   onOpenWorldMapGrey,
   onOpenSettings,
+  onPreviewTravel,
 }: {
   hasSave: boolean;
   onNew: () => void;
@@ -83,13 +89,16 @@ export default function TitleScreen({
   onZhuge: () => void;
   onLiubei: () => void;
   onCaocao: () => void;
+  onZhouyu: () => void;
   onOpenFourRoads: () => void;
   onOpenFiveRoads: () => void;
+  onOpenSixRoads: () => void;
   onBountyQa: () => void;
   onOpenSaveSlots: () => void;
   onOpenWorldMap: () => void;
   onOpenWorldMapGrey: () => void;
   onOpenSettings: () => void;
+  onPreviewTravel: () => void;
 }) {
   const root = useRef<HTMLElement>(null);
   const [, bump] = useState(0);
@@ -100,8 +109,10 @@ export default function TitleScreen({
   const zg = zhugeStatus(progress);
   const lb = liubeiStatus(progress);
   const cc = caocaoStatus(progress);
+  const zy7 = zhouyuStatus(progress);
   const [fourGreyQa, setFourGreyQa] = useState(false);
   const [fiveGreyQa, setFiveGreyQa] = useState(false);
+  const [sixGreyQa, setSixGreyQa] = useState(false);
   const fourOk = fourGreyQa ? false : fourRoadsUnlocked(progress);
   const fourHint = fourGreyQa
     ? fourRoadsLockHint(emptyProgress())
@@ -110,6 +121,10 @@ export default function TitleScreen({
   const fiveHint = fiveGreyQa
     ? fiveRoadsLockHint(emptyProgress())
     : fiveRoadsLockHint(progress);
+  const sixOk = sixGreyQa ? false : sixRoadsUnlocked(progress);
+  const sixHint = sixGreyQa
+    ? sixRoadsLockHint(emptyProgress())
+    : sixRoadsLockHint(progress);
   const unlocked = confluenceUnlocked(progress);
   const lockHint = confluenceLockHint(progress);
   const mapOk = worldMapUnlocked(progress);
@@ -189,6 +204,16 @@ export default function TitleScreen({
             {cc}
           </span>
         </div>
+        <div
+          className="title-progress-row zhouyu"
+          data-line="zhouyu"
+          data-qa="zy-progress-row"
+        >
+          <span className="tp-name">周瑜列傳</span>
+          <span className={`tp-status ${statusClass(zy7)}`} data-status={zy7} data-qa="zy-status">
+            {zy7}
+          </span>
+        </div>
       </div>
 
       <div className="btn-row title-enter">
@@ -257,6 +282,20 @@ export default function TitleScreen({
         >
           五路總覽
         </button>
+        <button
+          type="button"
+          className={`btn${sixOk ? "" : " locked"}`}
+          data-qa="six-roads-entry"
+          disabled={!sixOk}
+          title={sixOk ? "六路總覽" : sixHint}
+          onClick={() => {
+            if (!sixOk) return;
+            setSixGreyQa(false);
+            onOpenSixRoads();
+          }}
+        >
+          六路總覽
+        </button>
       </div>
       {!fourOk && (
         <p
@@ -276,6 +315,16 @@ export default function TitleScreen({
         >
           {fiveGreyQa ? "【灰態測試】" : ""}
           {fiveHint}
+        </p>
+      )}
+      {!sixOk && (
+        <p
+          className={`title-lock-hint title-enter six-roads-lock-hint${sixGreyQa ? " qa-grey" : ""}`}
+          data-qa="six-roads-lock-hint"
+          data-grey-qa={sixGreyQa ? "1" : "0"}
+        >
+          {sixGreyQa ? "【灰態測試】" : ""}
+          {sixHint}
         </p>
       )}
       <div className="btn-row title-enter" style={{ marginTop: 10 }}>
@@ -318,6 +367,14 @@ export default function TitleScreen({
           onClick={onCaocao}
         >
           曹操列傳
+        </button>
+        <button
+          type="button"
+          className="btn"
+          data-qa="zhouyu-chronicle"
+          onClick={onZhouyu}
+        >
+          周瑜列傳
         </button>
         <button
           type="button"
@@ -431,6 +488,18 @@ export default function TitleScreen({
       <button
         type="button"
         className="btn title-qa-unlock title-enter"
+        data-qa="qa-start-zhouyu"
+        onClick={() => {
+          patchProgress({ ch7Started: true });
+          bump((n) => n + 1);
+          onZhouyu();
+        }}
+      >
+        周瑜短線測試
+      </button>
+      <button
+        type="button"
+        className="btn title-qa-unlock title-enter"
         data-qa="qa-start-bounty"
         onClick={() => {
           onBountyQa();
@@ -459,6 +528,77 @@ export default function TitleScreen({
         }}
       >
         五路總覽灰態測試
+      </button>
+      <button
+        type="button"
+        className="btn title-qa-unlock title-enter"
+        data-qa="qa-five-roads-clear"
+        onClick={() => {
+          patchProgress({
+            ch1Clear: true,
+            ch1Started: true,
+            ch2Clear: true,
+            ch2Started: true,
+            ch3Clear: true,
+            ch3Started: true,
+            ch4Clear: true,
+            ch4Started: true,
+            ch5Clear: true,
+            ch5Started: true,
+          });
+          setFiveGreyQa(false);
+          bump((n) => n + 1);
+          onOpenFiveRoads();
+        }}
+      >
+        五路既竟面板測試
+      </button>
+      <button
+        type="button"
+        className="btn title-qa-unlock title-enter"
+        data-qa="qa-travel-banner"
+        onClick={() => {
+          onPreviewTravel();
+        }}
+      >
+        旅途橫幅測試
+      </button>
+      <button
+        type="button"
+        className="btn title-qa-unlock title-enter"
+        data-qa="qa-six-roads-grey"
+        onClick={() => {
+          setSixGreyQa(true);
+          bump((n) => n + 1);
+        }}
+      >
+        六路總覽灰態測試
+      </button>
+      <button
+        type="button"
+        className="btn title-qa-unlock title-enter"
+        data-qa="qa-six-roads-clear"
+        onClick={() => {
+          patchProgress({
+            ch1Clear: true,
+            ch1Started: true,
+            ch2Clear: true,
+            ch2Started: true,
+            ch3Clear: true,
+            ch3Started: true,
+            ch4Clear: true,
+            ch4Started: true,
+            ch5Clear: true,
+            ch5Started: true,
+            ch6Clear: true,
+            ch6Started: true,
+          });
+          setSixGreyQa(false);
+          bump((n) => n + 1);
+          onOpenSixRoads();
+        }}
+      >
+        六路既竟面板測試
       </button>
       <button
         type="button"
@@ -1239,3 +1379,58 @@ export function FiveRoadsPanel({ onBack }: { onBack: () => void }) {
     </section>
   );
 }
+
+/** 六路總覽 — unlocked when 關趙張諸劉曹 all 初章既竟; holds 「六路初章既竟」 ≥2.5s. */
+export function SixRoadsPanel({ onBack }: { onBack: () => void }) {
+  const [ready, setReady] = useState(false);
+  useEffect(() => {
+    const timer = window.setTimeout(() => setReady(true), 2500);
+    return () => window.clearTimeout(timer);
+  }, []);
+  const rows = [
+    { name: "關羽", blurb: "義氣破北營，青龍刀定新野。" },
+    { name: "趙雲", blurb: "白馬銀槍，護民於常山平野。" },
+    { name: "張飛", blurb: "燕人虎威，喝退鎮口黃巾。" },
+    { name: "諸葛亮", blurb: "臥龍出山，以計破偽軍師。" },
+    { name: "劉備", blurb: "桃園之誓，拔鄉霸而安民。" },
+    { name: "曹操", blurb: "官道收旗，探馬風聲入袖。" },
+  ];
+  return (
+    <section className="screen select-stage" data-qa="six-roads-panel">
+      <div className="bg-plate" style={{ backgroundImage: "url(./art/bg-title.png)", opacity: 0.4 }} />
+      <div className="select-inner">
+        <div className="sheet gold-frame six-roads-sheet" style={{ margin: "24px auto", maxWidth: 480 }}>
+          <h1 className="six-roads-title" data-qa="six-roads-title" style={{ marginTop: 0, color: "var(--gold)" }}>
+            六路初章既竟
+          </h1>
+          <p className="six-roads-hold-hint" aria-hidden={ready}>
+            {ready ? "" : "……"}
+          </p>
+          <ul className="six-roads-list" data-qa="six-roads-list">
+            {rows.map((r) => (
+              <li key={r.name} className="six-roads-row gold-frame chip">
+                <b>{r.name}</b>
+                <span>{r.blurb}</span>
+              </li>
+            ))}
+          </ul>
+          <div className="btn-row" style={{ marginTop: 14 }}>
+            <button
+              type="button"
+              className="btn btn-primary"
+              data-qa="six-roads-close"
+              disabled={!ready}
+              onClick={() => {
+                if (!ready) return;
+                onBack();
+              }}
+            >
+              返回標題
+            </button>
+          </div>
+        </div>
+      </div>
+    </section>
+  );
+}
+

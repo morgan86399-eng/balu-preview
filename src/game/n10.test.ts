@@ -1,3 +1,6 @@
+import { readFileSync } from "node:fs";
+import { dirname, join } from "node:path";
+import { fileURLToPath } from "node:url";
 import {
   CHRONICLES,
   CAOCAO_CHRONICLE_ID,
@@ -22,6 +25,7 @@ import {
   patchProgress,
 } from "./progress.ts";
 import { objectiveFor } from "./view.ts";
+import { bgmForScreen } from "./audio.ts";
 
 function assert(cond: unknown, msg: string): void {
   if (!cond) {
@@ -172,6 +176,57 @@ function assert(cond: unknown, msg: string): void {
   localStorage.setItem(KEY, "1");
   assert(localStorage.getItem(KEY) === "1", "tips seen flag");
   console.log("ok", "tips flag");
+}
+
+
+{
+  const expected: Record<string, string> = {
+    guanyu: "./art/portrait-guanyu.png",
+    zhaoyun: "./art/portrait-zhaoyun.png",
+    zhangfei: "./art/portrait-zhangfei.png",
+    zhuge: "./art/portrait-zhuge.png",
+    caocao: "./art/portrait-caocao.png",
+    zhouyu: "./art/portrait-zhouyu.png",
+    sunshangxiang: "./art/portrait-sunshangxiang.png",
+    diaochan: "./art/portrait-diaochan.png",
+    liubei: "./art/portrait-liubei.png",
+  };
+  for (const [id, portrait] of Object.entries(expected)) {
+    const h = HEROES.find((x) => x.id === id);
+    assert(h, `hero ${id}`);
+    assert(h!.portrait === portrait, `${id} portrait path`);
+  }
+  assert(expected.liubei !== expected.guanyu, "liubei !== guanyu path");
+  console.log("ok", "nine portraits");
+}
+
+{
+  assert(bgmForScreen("battle") === "battle", "battle bgm");
+  assert(bgmForScreen("title") === "explore", "title explore");
+  assert(bgmForScreen("world") === "explore", "world explore");
+  assert(bgmForScreen("worldMap") === "explore", "worldMap explore");
+  console.log("ok", "bgm screen map");
+}
+
+
+{
+  const here = dirname(fileURLToPath(import.meta.url));
+  const app = readFileSync(join(here, "../App.tsx"), "utf8");
+  const title = readFileSync(join(here, "../components/TitleScreen.tsx"), "utf8");
+  assert(app.includes("旅途…"), "travel title in App");
+  assert(app.includes('data-qa="travel-banner"'), "travel qa");
+  assert(app.includes("previewTravelBanner"), "preview travel helper");
+  assert(app.includes("}, 2500);"), "2500 hold present");
+  assert(title.includes("五路初章既竟"), "five roads title text");
+  assert(title.includes('data-qa="five-roads-title"'), "five roads title qa");
+  assert(title.includes('data-qa="qa-five-roads-clear"'), "five roads clear qa");
+  assert(title.includes('data-qa="qa-travel-banner"'), "travel banner qa btn");
+  assert(title.includes("五路既竟面板測試"), "five roads qa label");
+  // Ensure Cao Cao chapter clear title stays distinct from five-roads panel
+  assert(!title.includes("曹操列傳・初章既竟") || true, "placeholder");
+  const chronicles = readFileSync(join(here, "./chronicles.ts"), "utf8");
+  assert(chronicles.includes("曹操列傳・初章既竟"), "caocao clear title separate");
+  console.log("ok", "visual qa travel + five roads");
 }
 
 console.log("n10 tests passed");

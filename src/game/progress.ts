@@ -16,6 +16,8 @@ export interface MetaProgress {
   ch5Clear: boolean;
   ch6Started: boolean;
   ch6Clear: boolean;
+  ch7Started: boolean;
+  ch7Clear: boolean;
   confluenceClear: boolean;
   /** Optional meta mirror for bounty board (also stored on save.flags). */
   bountyAccepted?: boolean;
@@ -39,6 +41,8 @@ export function emptyProgress(): MetaProgress {
     ch5Clear: false,
     ch6Started: false,
     ch6Clear: false,
+    ch7Started: false,
+    ch7Clear: false,
     confluenceClear: false,
     bountyAccepted: false,
     bountyDone: false,
@@ -96,6 +100,27 @@ export function liubeiStatus(p: MetaProgress = loadProgress()): LineStatus {
 
 export function caocaoStatus(p: MetaProgress = loadProgress()): LineStatus {
   return lineStatus(p.ch6Started, p.ch6Clear);
+}
+
+export function zhouyuStatus(p: MetaProgress = loadProgress()): LineStatus {
+  return lineStatus(p.ch7Started, p.ch7Clear);
+}
+
+/** 關＋趙＋張＋諸葛＋劉＋曹 皆初章既竟 → 六路總覽. */
+export function sixRoadsUnlocked(p: MetaProgress = loadProgress()): boolean {
+  return Boolean(p.ch1Clear && p.ch2Clear && p.ch3Clear && p.ch4Clear && p.ch5Clear && p.ch6Clear);
+}
+
+export function sixRoadsLockHint(p: MetaProgress = loadProgress()): string {
+  if (sixRoadsUnlocked(p)) return "";
+  const missing: string[] = [];
+  if (!p.ch1Clear) missing.push("關羽列傳");
+  if (!p.ch2Clear) missing.push("趙雲列傳");
+  if (!p.ch3Clear) missing.push("張飛列傳");
+  if (!p.ch4Clear) missing.push("諸葛亮列傳");
+  if (!p.ch5Clear) missing.push("劉備列傳");
+  if (!p.ch6Clear) missing.push("曹操列傳");
+  return `未解鎖・缺：${missing.join("、")}`;
 }
 
 /** 關羽＋趙雲＋張飛＋諸葛 皆初章既竟 → 四路總覽. */
@@ -282,6 +307,10 @@ export function syncProgressFromSave(flags: Record<string, boolean>, chronicleId
     patch.ch6Clear = true;
     patch.ch6Started = true;
   }
+  if (flags.ch7Clear) {
+    patch.ch7Clear = true;
+    patch.ch7Started = true;
+  }
   if (flags.confluenceClear) {
     patch.confluenceClear = true;
   }
@@ -293,5 +322,6 @@ export function syncProgressFromSave(flags: Record<string, boolean>, chronicleId
   if (chronicleId === "zhuge4") patch.ch4Started = true;
   if (chronicleId === "liubei5") patch.ch5Started = true;
   if (chronicleId === "caocao6") patch.ch6Started = true;
+  if (chronicleId === "zhouyu7") patch.ch7Started = true;
   return Object.keys(patch).length ? patchProgress(patch) : loadProgress();
 }
