@@ -37,12 +37,12 @@ jobs:
         run: npm run build
       - name: Restore pinned CDN index
         # vite build + write-cdn-index may rewrite pages/index.html to @main;
-        # the committed pin (commit SHA + ?v=n11fix1) is the live source of truth.
+        # the committed pin (commit SHA + ?v=n11fix2) is the live source of truth.
         run: git checkout -- pages/index.html && cp pages/index.html dist/index.html
       - name: Verify N11 live index
         run: |
           set -euo pipefail
-          grep -F "?v=n11fix1" pages/index.html dist/index.html
+          grep -F "?v=n11fix2" pages/index.html dist/index.html
           grep -F "portrait-liubei.png" src/game/data.ts
           if grep -n 'src=.*n10-hotfix' pages/index.html dist/index.html; then
             echo "N10 hotfix script must not be loaded on live"
