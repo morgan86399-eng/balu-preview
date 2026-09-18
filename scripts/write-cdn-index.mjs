@@ -15,7 +15,7 @@ copyFileSync(join(assetsDir, css), join("preview-assets", css));
 
 // Pin public/ + JS/CSS to one commit (filled after the assets push).
 // Cache-bust query so jsDelivr @main / stale HTML cannot serve N10-era files.
-const MEDIA_COMMIT = process.env.CDN_COMMIT || "9fbcbe67ff57ec288c882f86256986f1b289e9dd";
+const MEDIA_COMMIT = process.env.CDN_COMMIT || "b1dd6335b1fd3027d1e4a14be934ae100fe0b341";
 const CACHE_BUST = "n13fix1";
 const cdn = `https://cdn.jsdelivr.net/gh/morgan86399-eng/balu-preview@${MEDIA_COMMIT}`;
 const qs = `?v=${CACHE_BUST}`;
