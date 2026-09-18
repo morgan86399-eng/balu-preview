@@ -232,7 +232,7 @@ export const HEROES: HeroDef[] = [
     pathActionName: "延聘",
     opening: "劉備自涿郡來到新野。桃園之誓猶在耳——要延攬人心，先安這一城的百姓。",
     bio: "仁德延聘。路徑行動是延聘，可把有志之士請入同行。勸誘亦合其風。",
-    portrait: "./art/portrait-liubei-n11.png",
+    portrait: "./art/portrait-liubei.png",
     color: "#c4a35a",
     maxHp: 120,
     maxSp: 40,

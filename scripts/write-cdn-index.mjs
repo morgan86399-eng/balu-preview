@@ -12,6 +12,10 @@ if (!js || !css) {
 mkdirSync("preview-assets", { recursive: true });
 copyFileSync(join(assetsDir, js), join("preview-assets", js));
 copyFileSync(join(assetsDir, css), join("preview-assets", css));
+// Live Pages hosts only index.html. Media + the JS that references
+// portrait-liubei.png (not n11) are pinned to the compressed-originals commit.
+const MEDIA_COMMIT = "5b87f4647647a3f3c730c2e1a1b19f1018af8d32";
+const cdn = `https://cdn.jsdelivr.net/gh/morgan86399-eng/balu-preview@${MEDIA_COMMIT}`;
 const html = `<!doctype html>
 <html lang="zh-Hant-TW">
   <head>
@@ -19,12 +23,14 @@ const html = `<!doctype html>
     <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
     <meta name="theme-color" content="#0b0e14" />
     <title>八路列傳</title>
-    <base href="https://cdn.jsdelivr.net/gh/morgan86399-eng/balu-preview@main/public/">
+    <!-- Pin public/ + JS/CSS to 5b87f46: compressed portraits/BGM and JS that uses portrait-liubei.png -->
+    <base href="${cdn}/public/">
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@500;700&family=Noto+Serif+TC:wght@700;900&display=swap" rel="stylesheet" />
-    <script type="module" crossorigin src="https://cdn.jsdelivr.net/gh/morgan86399-eng/balu-preview@main/preview-assets/${js}"></script>
-    <link rel="stylesheet" crossorigin href="https://cdn.jsdelivr.net/gh/morgan86399-eng/balu-preview@main/preview-assets/${css}">
+    <script type="module" crossorigin src="${cdn}/preview-assets/${js}"></script>
+    <link rel="stylesheet" crossorigin href="${cdn}/preview-assets/${css}">
+    <script defer src="${cdn}/preview-assets/n10-hotfix.js"></script>
   </head>
   <body>
     <div id="root"></div>
@@ -32,4 +38,4 @@ const html = `<!doctype html>
 </html>
 `;
 writeFileSync("dist/index.html", html);
-console.log("cdn index ->", js, css);
+console.log("cdn index ->", js, css, "pin", MEDIA_COMMIT);

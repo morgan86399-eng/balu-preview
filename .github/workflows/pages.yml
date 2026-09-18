@@ -5,17 +5,21 @@ on:
     branches: [main]
   workflow_dispatch:
 
+# Live URL https://morgan86399-eng.github.io/balu-preview/ is served from
+# morgan86399-eng/morgan86399-eng.github.io (user Pages: legacy, main, /).
+# This repo has has_pages=false, so actions/deploy-pages@v4 404s and
+# GITHUB_TOKEN cannot enable project Pages (403 Resource not accessible).
+# The user Pages repo syncs pages/index.html onto that live URL.
+
 permissions:
   contents: read
-  pages: write
-  id-token: write
 
 concurrency:
   group: pages
   cancel-in-progress: false
 
 jobs:
-  build:
+  publish:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
@@ -25,39 +29,45 @@ jobs:
         with:
           node-version: 22
           cache: npm
-      - name: Enable GitHub Pages (workflow source)
-        env:
-          GH_TOKEN: ${{ github.token }}
-        run: |
-          set +e
-          gh api -X POST "repos/${GITHUB_REPOSITORY}/pages" -f build_type=workflow
-          if [ "$?" -ne 0 ]; then
-            gh api -X PUT "repos/${GITHUB_REPOSITORY}/pages" -f build_type=workflow
-          fi
-          exit 0
-      - name: Setup Pages
-        uses: actions/configure-pages@v5
-        with:
-          enablement: true
-        continue-on-error: true
       - name: Install
         run: npm ci
+      - name: Test
+        run: npm test
       - name: Build
         run: npm run build
       - name: Apply CDN index for Pages
         run: cp pages/index.html dist/index.html
-      - name: Upload Pages artifact
-        uses: actions/upload-pages-artifact@v3
-        with:
-          path: dist
-
-  deploy:
-    needs: build
-    runs-on: ubuntu-latest
-    environment:
-      name: github-pages
-      url: ${{ steps.deployment.outputs.page_url }}
-    steps:
-      - name: Deploy to GitHub Pages
-        id: deployment
-        uses: actions/deploy-pages@v4
+      - name: Verify live CDN pin
+        run: |
+          set -euo pipefail
+          grep -F "5b87f4647647a3f3c730c2e1a1b19f1018af8d32" pages/index.html dist/index.html
+          grep -F "portrait-liubei.png" src/game/data.ts
+          if grep -n "portrait-liubei-n11.png" src/game/data.ts src/game/n10.test.ts preview-assets/index-D2qxq4_j.js; then
+            echo "portrait-liubei-n11.png must not be referenced from JS/src"
+            exit 1
+          fi
+          BASE="https://cdn.jsdelivr.net/gh/morgan86399-eng/balu-preview@5b87f4647647a3f3c730c2e1a1b19f1018af8d32/public/"
+          python3 - <<PY
+          import urllib.request
+          base = "${BASE}"
+          png = urllib.request.urlopen(base + "art/portrait-liubei.png")
+          length = png.headers.get("Content-Length")
+          assert png.status == 200, png.status
+          assert length == "305505", length
+          bgm = urllib.request.urlopen(base + "audio/bgm-explore.mp3")
+          assert bgm.status == 200, bgm.status
+          print("cdn pin ok", length)
+          PY
+      - name: Request user Pages sync
+        continue-on-error: true
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          gh api --method POST repos/morgan86399-eng/morgan86399-eng.github.io/dispatches -f event_type=sync-balu-preview || true
+      - name: Purge jsDelivr @main cache
+        continue-on-error: true
+        run: |
+          curl -fsSL "https://purge.jsdelivr.net/gh/morgan86399-eng/balu-preview@main/pages/index.html" || true
+          echo
+          curl -fsSL "https://purge.jsdelivr.net/gh/morgan86399-eng/balu-preview@main/preview-assets/index-D2qxq4_j.js" || true
+          echo
