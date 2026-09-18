@@ -119,6 +119,17 @@ export const CHRONICLES: Record<ChronicleId, ChronicleDef> = {
     startY: 4,
     partnerId: "zhaoyun",
   },
+  diaochan9: {
+    id: "diaochan9",
+    heroId: "diaochan",
+    title: "貂蟬列傳",
+    summary: "鳳儀亭月色未歇。先以勸誘、舞姿探聽虛實，再於月下庭院化解悍衛。",
+    clearTitle: "貂蟬列傳・初章既竟",
+    startMap: "fengyi",
+    startX: 6,
+    startY: 4,
+    partnerId: "caocao",
+  },
 };
 
 export const SECOND_CHRONICLE_ID: ChronicleId = "zhaoyun2";
@@ -129,6 +140,7 @@ export const LIUBEI_CHRONICLE_ID: ChronicleId = "liubei5";
 export const CAOCAO_CHRONICLE_ID: ChronicleId = "caocao6";
 export const ZHOUYU_CHRONICLE_ID: ChronicleId = "zhouyu7";
 export const SUNSHANGXIANG_CHRONICLE_ID: ChronicleId = "sunshangxiang8";
+export const DIAOCHAN_CHRONICLE_ID: ChronicleId = "diaochan9";
 
 export function chronicleById(id: ChronicleId): ChronicleDef {
   return CHRONICLES[id] ?? CHRONICLES.ch1;
@@ -611,6 +623,64 @@ export function newSunshangxiangSave(): GameSave {
     steps: 0,
     chapter: 1,
     chronicleId: "sunshangxiang8",
+    equip: {},
+    encounterFill: 0,
+    pathMastery: {},
+  };
+}
+
+export function diaochanOpening(): DialogueLine[] {
+  const h = heroById("diaochan");
+  return [
+    {
+      speaker: h.name,
+      portrait: h.portrait,
+      text: "鳳儀亭的月還沒落下。庭院那頭有人攔路——有些仗，不必先拔刀。",
+    },
+    {
+      speaker: h.name,
+      portrait: h.portrait,
+      text: "先勸開、再起舞。人心一鬆，盾也就薄了。",
+    },
+    {
+      speaker: "系統",
+      text: "這是貂蟬列傳短線。勸誘或起舞後，擊敗月下庭院悍衛即可寫完初章。",
+    },
+  ];
+}
+
+export function newDiaochanSave(): GameSave {
+  const def = CHRONICLES.diaochan9;
+  const heroId = def.heroId;
+  const party = def.partnerId ? [heroId, def.partnerId] : [heroId];
+  const vitalsMap: GameSave["vitals"] = {};
+  for (const id of party) vitalsMap[id] = vitals(id, 1);
+  return {
+    version: 2,
+    heroId,
+    party,
+    mapId: def.startMap,
+    x: def.startX,
+    y: def.startY,
+    facing: "up",
+    flags: {
+      companionJoined: Boolean(def.partnerId),
+      gotIronSpear: true,
+      ch9Started: true,
+    },
+    gold: 90,
+    items: { herb: 2, salve: 0, oil: 1, "iron-spear": 1, "leather-armor": 1 },
+    inquired: [],
+    weaknessLog: {},
+    journal: ["ch9-start"],
+    clues: ["月下庭院有庭院悍衛攔路。"],
+    hour: 21,
+    level: 1,
+    exp: 0,
+    vitals: vitalsMap,
+    steps: 0,
+    chapter: 1,
+    chronicleId: "diaochan9",
     equip: {},
     encounterFill: 0,
     pathMastery: {},

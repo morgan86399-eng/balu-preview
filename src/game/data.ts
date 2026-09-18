@@ -519,6 +519,24 @@ export const ENEMIES: Record<string, EnemyDef> = {
     gold: 48,
     exp: 60,
   },
+  moonchief: {
+    id: "moonchief",
+    name: "庭院悍衛",
+    portrait: "./art/portrait-officer.png",
+    maxHp: 96,
+    maxSp: 16,
+    atk: 14,
+    def: 6,
+    spd: 12,
+    shields: 3,
+    weaknesses: ["fan", "dark", "sword"],
+    skills: [
+      { id: "guard-cut", name: "截殺", sp: 0, weapon: "sword", hits: 1, power: 1 },
+      { id: "night-rush", name: "夜襲", sp: 7, weapon: "dark", hits: 1, power: 0.55, aoe: true },
+    ],
+    gold: 48,
+    exp: 60,
+  },
   remnant: {
     id: "remnant",
     name: "黃巾渠帥殘黨",
@@ -665,6 +683,14 @@ export const JOURNAL: Record<string, { title: string; body: string }> = {
   "ch8-clear": {
     title: "孫尚香列傳・初章既竟",
     body: "弓頭目已除。水寨箭道再開，遠射可及江面。",
+  },
+  "ch9-start": {
+    title: "鳳儀亭",
+    body: "貂蟬短列傳開始。月下庭院有庭院悍衛攔路。勸誘與舞姿可先鬆其盾。",
+  },
+  "ch9-clear": {
+    title: "貂蟬列傳・初章既竟",
+    body: "悍衛已除。鳳儀亭月色暫歇，勸開的人還活著。",
   },
   "bounty-start": {
     title: "懸賞木牌",

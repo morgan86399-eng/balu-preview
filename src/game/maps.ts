@@ -1164,6 +1164,128 @@ export const MAPS: Record<string, MapDef> = {
     },
   },
 
+  fengyi: {
+    id: "fengyi",
+    name: "鳳儀亭",
+    bg: "./art/bg-town.png",
+    lighting: "night",
+    view: { northY: 0.2, southY: 0.86, northHalf: 0.18, southHalf: 0.46, centerX: 0.5 },
+    tiles: [
+      "#############",
+      "#...GGGGG...#",
+      "#...........#",
+      "#hh.......hh#",
+      "#...........#",
+      "#...........#",
+      "#g.........g#",
+      "#...........#",
+      "#....www....#",
+      "#...........#",
+      "#...........#",
+      "#############",
+    ],
+    npcs: [
+      {
+        id: "dc-maid",
+        name: "侍女",
+        x: 4,
+        y: 7,
+        pathHint: "allure",
+        talk: [
+          "侍女把燈罩低：庭院北旗擋了月色。姑娘若肯勸開，我們敢把人請到廊下去。",
+          "出北口就是月下庭院。先勸、再起舞，盾會薄。",
+        ],
+      },
+      {
+        id: "dc-dancer",
+        name: "歌伎",
+        x: 9,
+        y: 5,
+        pathHint: "allure",
+        talk: [
+          "歌伎把扇骨一點：悍衛最吃軟話。勸誘一聲，他的刀就慢半拍。",
+        ],
+      },
+      {
+        id: "dc-scout",
+        name: "亭下斥候",
+        x: 7,
+        y: 5,
+        pathHint: "inquire",
+        talk: [
+          "斥候指北：北端旗下就是庭院悍衛。舞姿一開，破綻就露出來。",
+        ],
+      },
+    ],
+    warps: [
+      { x: 4, y: 1, to: "mooncourt", tx: 7, ty: 10, prompt: "出亭，前往月下庭院" },
+      { x: 5, y: 1, to: "mooncourt", tx: 7, ty: 10, prompt: "出亭，前往月下庭院" },
+      { x: 6, y: 1, to: "mooncourt", tx: 7, ty: 10, prompt: "出亭，前往月下庭院" },
+      { x: 7, y: 1, to: "mooncourt", tx: 7, ty: 10, prompt: "出亭，前往月下庭院" },
+      { x: 8, y: 1, to: "mooncourt", tx: 7, ty: 10, prompt: "出亭，前往月下庭院" },
+      { x: 5, y: 2, to: "mooncourt", tx: 7, ty: 10, prompt: "出亭，前往月下庭院" },
+      { x: 6, y: 2, to: "mooncourt", tx: 7, ty: 10, prompt: "出亭，前往月下庭院" },
+      { x: 7, y: 2, to: "mooncourt", tx: 7, ty: 10, prompt: "出亭，前往月下庭院" },
+    ],
+  },
+  mooncourt: {
+    id: "mooncourt",
+    name: "月下庭院",
+    bg: "./art/bg-road.png",
+    lighting: "night",
+    view: { northY: 0.22, southY: 0.8, northHalf: 0.14, southHalf: 0.38, centerX: 0.5 },
+    tiles: [
+      "###############",
+      "#tt...BBB...tt#",
+      "#tt...BBB...tt#",
+      "#.....rrr.....#",
+      "#tt...rrr...tt#",
+      "#.....rrr.....#",
+      "#tt.........tt#",
+      "#tt.........tt#",
+      "#.....rrr.....#",
+      "#tt.........tt#",
+      "#......G......#",
+      "###############",
+    ],
+    npcs: [
+      {
+        id: "dc-moonchief",
+        name: "庭院悍衛",
+        x: 7,
+        y: 1,
+        pathHint: "allure",
+        hideFlag: "ch9Clear",
+        talk: [
+          "悍衛橫刀：這庭院今夜歸我守。貂蟬？不過一個會跳舞的。",
+        ],
+      },
+      {
+        id: "dc-guest",
+        name: "夜宴客",
+        x: 5,
+        y: 8,
+        pathHint: "allure",
+        talk: [
+          "夜宴客把盞一頓：悍衛最愛聽奉承。姑娘若肯勸，他的盾先鬆一寸。",
+        ],
+      },
+    ],
+    warps: [
+      { x: 7, y: 10, to: "fengyi", tx: 6, ty: 2, prompt: "返回鳳儀亭" },
+    ],
+    encounter: {
+      steps: 5,
+      softOnly: true,
+      packs: [
+        ["yellow"],
+        ["yellow"],
+        ["archer"],
+        ["yellow", "yellow"],
+      ],
+    },
+  },
+
 };
 
 
@@ -1306,6 +1428,25 @@ export const BOWYARD_MINIBOSS_COORDS: ReadonlyArray<{ x: number; y: number }> = 
 
 export function isBowyardMinibossTile(x: number, y: number): boolean {
   return BOWYARD_MINIBOSS_COORDS.some((c) => c.x === x && c.y === y);
+}
+
+/** Soft packs suppressed on mooncourt until ch9Clear. */
+export function mooncourtSoftEncountersSuppressed(flags: { ch9Clear?: boolean }): boolean {
+  return !flags.ch9Clear;
+}
+
+/** Diaochan mooncourt miniboss zone — 庭院悍衛. */
+export const MOONCOURT_MINIBOSS_COORDS: ReadonlyArray<{ x: number; y: number }> = [
+  { x: 6, y: 1 },
+  { x: 7, y: 1 },
+  { x: 8, y: 1 },
+  { x: 6, y: 2 },
+  { x: 7, y: 2 },
+  { x: 8, y: 2 },
+];
+
+export function isMooncourtMinibossTile(x: number, y: number): boolean {
+  return MOONCOURT_MINIBOSS_COORDS.some((c) => c.x === x && c.y === y);
 }
 
 export function mapById(id: string): MapDef {

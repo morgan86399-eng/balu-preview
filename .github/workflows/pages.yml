@@ -37,12 +37,12 @@ jobs:
         run: npm run build
       - name: Restore pinned CDN index
         # vite build + write-cdn-index may rewrite pages/index.html to @main;
-        # the committed pin (commit SHA + ?v=n12) is the live source of truth.
+        # the committed pin (commit SHA + ?v=n13) is the live source of truth.
         run: git checkout -- pages/index.html && cp pages/index.html dist/index.html
-      - name: Verify N12 live index
+      - name: Verify N13 live index
         run: |
           set -euo pipefail
-          grep -F "?v=n12" pages/index.html dist/index.html
+          grep -F "?v=n13" pages/index.html dist/index.html
           grep -F "portrait-liubei.png" src/game/data.ts
           if grep -n 'src=.*n10-hotfix' pages/index.html dist/index.html; then
             echo "N10 hotfix script must not be loaded on live"
@@ -50,12 +50,15 @@ jobs:
           fi
           JS=$(grep -oE 'preview-assets/index-[^"?]+\.js' pages/index.html | head -1)
           echo "live js $JS"
-          grep -F "孫尚香短線測試" "preview-assets/$(basename "$JS")"
-          grep -F "孫尚香列傳・初章既竟" "preview-assets/$(basename "$JS")"
+          grep -F "貂蟬短線測試" "preview-assets/$(basename "$JS")"
+          grep -F "貂蟬列傳・初章既竟" "preview-assets/$(basename "$JS")"
+          grep -F "八路總覽" "preview-assets/$(basename "$JS")"
+          grep -F "八路初章既竟" "preview-assets/$(basename "$JS")"
+          grep -F "八路既竟面板測試" "preview-assets/$(basename "$JS")"
+          grep -F "八路總覽灰態測試" "preview-assets/$(basename "$JS")"
           grep -F "七路既竟面板測試" "preview-assets/$(basename "$JS")"
-          grep -F "七路總覽灰態測試" "preview-assets/$(basename "$JS")"
-          grep -F "七路初章既竟" "preview-assets/$(basename "$JS")"
           grep -F "六路既竟面板測試" "preview-assets/$(basename "$JS")"
+          grep -F "孫尚香短線測試" "preview-assets/$(basename "$JS")"
           grep -F "周瑜短線測試" "preview-assets/$(basename "$JS")"
           python3 - <<'PY'
           from pathlib import Path
