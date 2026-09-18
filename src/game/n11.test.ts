@@ -1,3 +1,4 @@
+import { readFileSync, statSync } from "node:fs";
 import {
   emptyProgress,
   sixRoadsUnlocked,
@@ -8,6 +9,7 @@ import {
 } from "./progress.ts";
 import { CHRONICLES, newZhouyuSave, ZHOUYU_CHRONICLE_ID } from "./chronicles.ts";
 import { MAPS, isJshoreMinibossTile } from "./maps.ts";
+import { HEROES } from "./data.ts";
 
 function assert(cond: unknown, msg: string) {
   if (!cond) throw new Error(msg);
@@ -57,4 +59,28 @@ assert(sixRoadsLockHint() === "", "no hint");
 
 console.log("ok progress zhouyu + six roads");
 console.log("ok zhouyu save + maps");
+
+{
+  const title = readFileSync("src/components/TitleScreen.tsx", "utf8");
+  for (const s of [
+    "周瑜短線測試",
+    "六路總覽灰態測試",
+    "六路既竟面板測試",
+    "六路初章既竟",
+    "六路總覽",
+  ]) {
+    assert(title.includes(s), `title missing ${s}`);
+  }
+  const lb = HEROES.find((h) => h.id === "liubei");
+  const gy = HEROES.find((h) => h.id === "guanyu");
+  assert(lb?.portrait === "./art/portrait-liubei.png", "liubei path");
+  assert(gy?.portrait === "./art/portrait-guanyu.png", "guanyu path");
+  assert(lb!.portrait !== gy!.portrait, "liubei !== guanyu path");
+  const lbBytes = statSync("public/art/portrait-liubei.png").size;
+  const gyBytes = statSync("public/art/portrait-guanyu.png").size;
+  assert(lbBytes !== 1659891, "not the labeled landscape");
+  assert(lbBytes !== gyBytes, "liubei/guanyu file sizes differ");
+  console.log("ok", "n11 title QA strings + distinct portraits", lbBytes, gyBytes);
+}
+
 console.log("n11 tests passed");
