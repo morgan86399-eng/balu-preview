@@ -37,12 +37,12 @@ jobs:
         run: npm run build
       - name: Restore pinned CDN index
         # vite build + write-cdn-index may rewrite pages/index.html to @main;
-        # the committed pin (commit SHA + ?v=n11fix2) is the live source of truth.
+        # the committed pin (commit SHA + ?v=n12) is the live source of truth.
         run: git checkout -- pages/index.html && cp pages/index.html dist/index.html
-      - name: Verify N11 live index
+      - name: Verify N12 live index
         run: |
           set -euo pipefail
-          grep -F "?v=n11fix2" pages/index.html dist/index.html
+          grep -F "?v=n12" pages/index.html dist/index.html
           grep -F "portrait-liubei.png" src/game/data.ts
           if grep -n 'src=.*n10-hotfix' pages/index.html dist/index.html; then
             echo "N10 hotfix script must not be loaded on live"
@@ -50,9 +50,13 @@ jobs:
           fi
           JS=$(grep -oE 'preview-assets/index-[^"?]+\.js' pages/index.html | head -1)
           echo "live js $JS"
-          grep -F "周瑜短線測試" "preview-assets/$(basename "$JS")"
+          grep -F "孫尚香短線測試" "preview-assets/$(basename "$JS")"
+          grep -F "孫尚香列傳・初章既竟" "preview-assets/$(basename "$JS")"
+          grep -F "七路既竟面板測試" "preview-assets/$(basename "$JS")"
+          grep -F "七路總覽灰態測試" "preview-assets/$(basename "$JS")"
+          grep -F "七路初章既竟" "preview-assets/$(basename "$JS")"
           grep -F "六路既竟面板測試" "preview-assets/$(basename "$JS")"
-          grep -F "六路總覽灰態測試" "preview-assets/$(basename "$JS")"
+          grep -F "周瑜短線測試" "preview-assets/$(basename "$JS")"
           python3 - <<'PY'
           from pathlib import Path
           lb = Path("public/art/portrait-liubei.png").stat().st_size
@@ -74,9 +78,7 @@ jobs:
           for path in \
             pages/index.html \
             public/art/portrait-liubei.png \
-            public/art/portrait-guanyu.png \
-            preview-assets/index-CYl1vMGc.js \
-            preview-assets/index-D2qxq4_j.js
+            public/art/portrait-guanyu.png
           do
             curl -fsSL "https://purge.jsdelivr.net/gh/morgan86399-eng/balu-preview@main/${path}" || true
             echo
@@ -86,6 +88,6 @@ jobs:
           if [ -n "$JS" ] && [ -n "$PIN" ]; then
             curl -fsSL "https://purge.jsdelivr.net/gh/morgan86399-eng/balu-preview@${PIN}/${JS}" || true
             echo
-            curl -fsSL "https://purge.jsdelivr.net/gh/morgan86399-eng/balu-preview@${PIN}/public/art/portrait-liubei.png" || true
+            curl -fsSL "https://purge.jsdelivr.net/gh/morgan86399-eng/balu-preview@${PIN}/pages/index.html" || true
             echo
           fi

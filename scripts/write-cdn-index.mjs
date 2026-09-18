@@ -15,8 +15,8 @@ copyFileSync(join(assetsDir, css), join("preview-assets", css));
 
 // Pin public/ + JS/CSS to one commit (filled after the assets push).
 // Cache-bust query so jsDelivr @main / stale HTML cannot serve N10-era files.
-const MEDIA_COMMIT = process.env.CDN_COMMIT || "ffabf1117f45331850cbf641513c6e9dcf1a0007";
-const CACHE_BUST = "n11fix2";
+const MEDIA_COMMIT = process.env.CDN_COMMIT || "36f120ae2b881914bcd60cffdcecdaeda5f5f0f6";
+const CACHE_BUST = "n12";
 const cdn = `https://cdn.jsdelivr.net/gh/morgan86399-eng/balu-preview@${MEDIA_COMMIT}`;
 const qs = `?v=${CACHE_BUST}`;
 const html = `<!doctype html>
@@ -26,7 +26,7 @@ const html = `<!doctype html>
     <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
     <meta name="theme-color" content="#0b0e14" />
     <title>八路列傳</title>
-    <!-- N11 fix: one pin for public/ + preview-assets; ?v=${CACHE_BUST}; N10 hotfix script omitted -->
+    <!-- N12: pin public/ + JS/CSS to one commit; ?v=${CACHE_BUST} -->
     <base href="${cdn}/public/">
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />

@@ -18,6 +18,8 @@ export interface MetaProgress {
   ch6Clear: boolean;
   ch7Started: boolean;
   ch7Clear: boolean;
+  ch8Started: boolean;
+  ch8Clear: boolean;
   confluenceClear: boolean;
   /** Optional meta mirror for bounty board (also stored on save.flags). */
   bountyAccepted?: boolean;
@@ -43,6 +45,8 @@ export function emptyProgress(): MetaProgress {
     ch6Clear: false,
     ch7Started: false,
     ch7Clear: false,
+    ch8Started: false,
+    ch8Clear: false,
     confluenceClear: false,
     bountyAccepted: false,
     bountyDone: false,
@@ -104,6 +108,28 @@ export function caocaoStatus(p: MetaProgress = loadProgress()): LineStatus {
 
 export function zhouyuStatus(p: MetaProgress = loadProgress()): LineStatus {
   return lineStatus(p.ch7Started, p.ch7Clear);
+}
+
+export function sunshangxiangStatus(p: MetaProgress = loadProgress()): LineStatus {
+  return lineStatus(p.ch8Started, p.ch8Clear);
+}
+
+/** 六路條件＋周瑜初章既竟（關趙張諸劉曹周）→ 七路總覽. */
+export function sevenRoadsUnlocked(p: MetaProgress = loadProgress()): boolean {
+  return sixRoadsUnlocked(p) && Boolean(p.ch7Clear);
+}
+
+export function sevenRoadsLockHint(p: MetaProgress = loadProgress()): string {
+  if (sevenRoadsUnlocked(p)) return "";
+  const missing: string[] = [];
+  if (!p.ch1Clear) missing.push("關羽列傳");
+  if (!p.ch2Clear) missing.push("趙雲列傳");
+  if (!p.ch3Clear) missing.push("張飛列傳");
+  if (!p.ch4Clear) missing.push("諸葛亮列傳");
+  if (!p.ch5Clear) missing.push("劉備列傳");
+  if (!p.ch6Clear) missing.push("曹操列傳");
+  if (!p.ch7Clear) missing.push("周瑜列傳");
+  return `未解鎖・缺：${missing.join("、")}`;
 }
 
 /** 關＋趙＋張＋諸葛＋劉＋曹 皆初章既竟 → 六路總覽. */
@@ -238,6 +264,8 @@ export function unlockedTravelerIds(p: MetaProgress = loadProgress()): string[] 
   if (p.ch4Clear || p.ch4Started) ids.add("zhuge");
   if (p.ch5Clear || p.ch5Started) ids.add("liubei");
   if (p.ch6Clear || p.ch6Started) ids.add("caocao");
+  if (p.ch7Clear || p.ch7Started) ids.add("zhouyu");
+  if (p.ch8Clear || p.ch8Started) ids.add("sunshangxiang");
   // Partners unlocked with their line clear
   if (p.ch1Clear) {
     ids.add("guanyu");
@@ -259,6 +287,14 @@ export function unlockedTravelerIds(p: MetaProgress = loadProgress()): string[] 
     ids.add("caocao");
     ids.add("zhuge");
   }
+  if (p.ch7Clear) {
+    ids.add("zhouyu");
+    ids.add("sunshangxiang");
+  }
+  if (p.ch8Clear) {
+    ids.add("sunshangxiang");
+    ids.add("zhaoyun");
+  }
   if (p.confluenceClear) {
     ids.add("guanyu");
     ids.add("zhaoyun");
@@ -275,6 +311,8 @@ export function progressSummary(p: MetaProgress = loadProgress()): string {
     `諸葛 ${zhugeStatus(p)}`,
     `劉備 ${liubeiStatus(p)}`,
     `曹操 ${caocaoStatus(p)}`,
+    `周瑜 ${zhouyuStatus(p)}`,
+    `孫尚香 ${sunshangxiangStatus(p)}`,
   ];
   if (p.confluenceClear) bits.push("匯合既竟");
   return bits.join(" · ");
@@ -311,6 +349,10 @@ export function syncProgressFromSave(flags: Record<string, boolean>, chronicleId
     patch.ch7Clear = true;
     patch.ch7Started = true;
   }
+  if (flags.ch8Clear) {
+    patch.ch8Clear = true;
+    patch.ch8Started = true;
+  }
   if (flags.confluenceClear) {
     patch.confluenceClear = true;
   }
@@ -323,5 +365,6 @@ export function syncProgressFromSave(flags: Record<string, boolean>, chronicleId
   if (chronicleId === "liubei5") patch.ch5Started = true;
   if (chronicleId === "caocao6") patch.ch6Started = true;
   if (chronicleId === "zhouyu7") patch.ch7Started = true;
+  if (chronicleId === "sunshangxiang8") patch.ch8Started = true;
   return Object.keys(patch).length ? patchProgress(patch) : loadProgress();
 }

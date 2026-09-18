@@ -7,7 +7,7 @@ import Dust from "./Dust.tsx";
 import { Chevron } from "./Icon.tsx";
 
 
-const TOWN_MAPS = new Set(["xinyue", "inn", "yunzhen", "merge", "zhuolu"]);
+const TOWN_MAPS = new Set(["xinyue", "inn", "yunzhen", "merge", "zhuolu", "chaisang", "waterfort"]);
 
 const CHATTER: Record<string, string[]> = {
   guanyu: ["義氣在前。", "先削盾。"],
@@ -52,6 +52,10 @@ export default function WorldView({
   onChallengeTyrant,
   onQuickXroad,
   onChallengeEnforcer,
+  onQuickJshore,
+  onChallengeRaider,
+  onQuickBowyard,
+  onChallengeBowchief,
 }: {
   map: MapDef;
   save: GameSave;
@@ -74,6 +78,10 @@ export default function WorldView({
   onChallengeTyrant?: () => void;
   onQuickXroad?: () => void;
   onChallengeEnforcer?: () => void;
+  onQuickJshore?: () => void;
+  onChallengeRaider?: () => void;
+  onQuickBowyard?: () => void;
+  onChallengeBowchief?: () => void;
 }) {
   const hero = heroById(save.heroId);
   const npcs = visibleNpcs(map, save);
@@ -511,6 +519,62 @@ export default function WorldView({
               }}
             >
               挑戰探馬頭目
+            </button>
+          )}
+          {save.mapId === "chaisang" && onQuickJshore && (
+            <button
+              type="button"
+              className="btn btn-primary quick-travel"
+              data-qa="exit-jshore"
+              disabled={uiBlocked}
+              onClick={() => {
+                if (document.activeElement instanceof HTMLElement) document.activeElement.blur();
+                onQuickJshore();
+              }}
+            >
+              出碼頭・江岸
+            </button>
+          )}
+          {save.mapId === "jshore" && !save.flags.ch7Clear && onChallengeRaider && (
+            <button
+              type="button"
+              className="btn btn-primary quick-travel"
+              data-qa="challenge-raider"
+              disabled={uiBlocked}
+              onClick={() => {
+                if (document.activeElement instanceof HTMLElement) document.activeElement.blur();
+                onChallengeRaider();
+              }}
+            >
+              挑戰江賊頭目
+            </button>
+          )}
+          {save.mapId === "waterfort" && onQuickBowyard && (
+            <button
+              type="button"
+              className="btn btn-primary quick-travel"
+              data-qa="exit-bowyard"
+              disabled={uiBlocked}
+              onClick={() => {
+                if (document.activeElement instanceof HTMLElement) document.activeElement.blur();
+                onQuickBowyard();
+              }}
+            >
+              出水寨・弓場
+            </button>
+          )}
+          {save.mapId === "bowyard" && !save.flags.ch8Clear && onChallengeBowchief && (
+            <button
+              type="button"
+              className="btn btn-primary quick-travel"
+              data-qa="challenge-bowchief"
+              disabled={uiBlocked}
+              onClick={() => {
+                if (document.activeElement instanceof HTMLElement) document.activeElement.blur();
+                onChallengeBowchief();
+              }}
+            >
+              挑戰弓頭目
             </button>
           )}
           {save.mapId === "merge" && !save.flags.nightTalkDone && onNightTalk && (

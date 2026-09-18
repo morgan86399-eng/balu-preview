@@ -1042,6 +1042,128 @@ export const MAPS: Record<string, MapDef> = {
     },
   },
 
+  waterfort: {
+    id: "waterfort",
+    name: "江東水寨",
+    bg: "./art/bg-town.png",
+    lighting: "dusk",
+    view: { northY: 0.2, southY: 0.86, northHalf: 0.18, southHalf: 0.46, centerX: 0.5 },
+    tiles: [
+      "#############",
+      "#...GGGGG...#",
+      "#...........#",
+      "#hh.......hh#",
+      "#...........#",
+      "#...........#",
+      "#g.........g#",
+      "#...........#",
+      "#....www....#",
+      "#...........#",
+      "#...........#",
+      "#############",
+    ],
+    npcs: [
+      {
+        id: "ssx-sentry",
+        name: "水寨哨兵",
+        x: 4,
+        y: 7,
+        pathHint: "guide",
+        talk: [
+          "哨兵讓開半步：弓場北旗擋住箭道。郡主若肯帶領，我們敢把人撤到屋簷下。",
+          "出北口就是弓場。先清開視線，再遠射。",
+        ],
+      },
+      {
+        id: "ssx-fletcher",
+        name: "弓吏",
+        x: 9,
+        y: 5,
+        pathHint: "guide",
+        talk: [
+          "弓吏把箭囊遞上：頭目最怕被帶離掩體。帶領一聲，他的盾就薄。",
+        ],
+      },
+      {
+        id: "ssx-scout",
+        name: "水軍斥候",
+        x: 7,
+        y: 5,
+        pathHint: "inquire",
+        talk: [
+          "斥候指北：北端旗下就是水寨弓頭目。箭程剛好——先帶領再開弓。",
+        ],
+      },
+    ],
+    warps: [
+      { x: 4, y: 1, to: "bowyard", tx: 7, ty: 10, prompt: "出水寨，前往江東弓場" },
+      { x: 5, y: 1, to: "bowyard", tx: 7, ty: 10, prompt: "出水寨，前往江東弓場" },
+      { x: 6, y: 1, to: "bowyard", tx: 7, ty: 10, prompt: "出水寨，前往江東弓場" },
+      { x: 7, y: 1, to: "bowyard", tx: 7, ty: 10, prompt: "出水寨，前往江東弓場" },
+      { x: 8, y: 1, to: "bowyard", tx: 7, ty: 10, prompt: "出水寨，前往江東弓場" },
+      { x: 5, y: 2, to: "bowyard", tx: 7, ty: 10, prompt: "出水寨，前往江東弓場" },
+      { x: 6, y: 2, to: "bowyard", tx: 7, ty: 10, prompt: "出水寨，前往江東弓場" },
+      { x: 7, y: 2, to: "bowyard", tx: 7, ty: 10, prompt: "出水寨，前往江東弓場" },
+    ],
+  },
+  bowyard: {
+    id: "bowyard",
+    name: "江東弓場",
+    bg: "./art/bg-road.png",
+    lighting: "noon",
+    view: { northY: 0.22, southY: 0.8, northHalf: 0.14, southHalf: 0.38, centerX: 0.5 },
+    tiles: [
+      "###############",
+      "#tt...BBB...tt#",
+      "#tt...BBB...tt#",
+      "#.....rrr.....#",
+      "#tt...rrr...tt#",
+      "#.....rrr.....#",
+      "#tt.........tt#",
+      "#tt.........tt#",
+      "#.....rrr.....#",
+      "#tt.........tt#",
+      "#......G......#",
+      "###############",
+    ],
+    npcs: [
+      {
+        id: "ssx-bowchief",
+        name: "水寨弓頭目",
+        x: 7,
+        y: 1,
+        pathHint: "guide",
+        hideFlag: "ch8Clear",
+        talk: [
+          "弓頭目橫弓：這箭道從今日起歸我。孫尚香？不過江東一個小姑娘。",
+        ],
+      },
+      {
+        id: "ssx-archer",
+        name: "水寨弓手",
+        x: 5,
+        y: 8,
+        pathHint: "guide",
+        talk: [
+          "弓手縮在垛後：頭目最愛藏人。郡主若肯帶領我們讓開，遠射就有落點。",
+        ],
+      },
+    ],
+    warps: [
+      { x: 7, y: 10, to: "waterfort", tx: 6, ty: 2, prompt: "返回江東水寨" },
+    ],
+    encounter: {
+      steps: 5,
+      softOnly: true,
+      packs: [
+        ["yellow"],
+        ["yellow"],
+        ["archer"],
+        ["yellow", "yellow"],
+      ],
+    },
+  },
+
 };
 
 
@@ -1167,6 +1289,24 @@ export function isJshoreMinibossTile(x: number, y: number): boolean {
   return JSHORE_MINIBOSS_COORDS.some((c) => c.x === x && c.y === y);
 }
 
+/** Soft packs suppressed on bowyard until ch8Clear. */
+export function bowyardSoftEncountersSuppressed(flags: { ch8Clear?: boolean }): boolean {
+  return !flags.ch8Clear;
+}
+
+/** Sun Shangxiang bowyard miniboss zone — 水寨弓頭目. */
+export const BOWYARD_MINIBOSS_COORDS: ReadonlyArray<{ x: number; y: number }> = [
+  { x: 6, y: 1 },
+  { x: 7, y: 1 },
+  { x: 8, y: 1 },
+  { x: 6, y: 2 },
+  { x: 7, y: 2 },
+  { x: 8, y: 2 },
+];
+
+export function isBowyardMinibossTile(x: number, y: number): boolean {
+  return BOWYARD_MINIBOSS_COORDS.some((c) => c.x === x && c.y === y);
+}
 
 export function mapById(id: string): MapDef {
   const m = MAPS[id];
