@@ -5,7 +5,7 @@
   "type": "module",
   "scripts": {
     "dev": "vite --host 127.0.0.1 --port 5177",
-    "build": "vite build",
+    "build": "vite build && node scripts/write-cdn-index.mjs",
     "preview": "vite preview --host 127.0.0.1 --port 4177",
     "test": "tsx src/game/combat.test.ts && tsx src/game/view.test.ts && tsx src/game/pathAction.test.ts && tsx src/game/n5.test.ts && tsx src/game/n6.test.ts && tsx src/game/n7.test.ts && tsx src/game/n8.test.ts && tsx src/game/n9.test.ts && tsx src/game/n10.test.ts && tsx src/game/n11.test.ts"
   },

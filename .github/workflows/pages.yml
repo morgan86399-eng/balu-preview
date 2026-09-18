@@ -44,6 +44,8 @@ jobs:
         run: npm ci
       - name: Build
         run: npm run build
+      - name: Apply CDN index for Pages
+        run: cp pages/index.html dist/index.html
       - name: Upload Pages artifact
         uses: actions/upload-pages-artifact@v3
         with:
