@@ -8,6 +8,7 @@ import TitleScreen, {
   FourRoadsPanel,
   FiveRoadsPanel,
   SixRoadsPanel,
+  SevenRoadsPanel,
   PartySelectPanel,
   SaveSlotsPanel,
   SettingsPanel,
@@ -53,6 +54,9 @@ import {
   zhouyuOpening,
   newZhouyuSave,
   ZHOUYU_CHRONICLE_ID,
+  sunshangxiangOpening,
+  newSunshangxiangSave,
+  SUNSHANGXIANG_CHRONICLE_ID,
 } from "./game/chronicles.ts";
 import {
   confluenceUnlocked,
@@ -73,7 +77,7 @@ import {
 import { PARTNER, PATH_LABEL, heroById } from "./game/data.ts";
 import { ITEMS, expToNext, itemById, isEquippable } from "./game/items.ts";
 import { DELTA } from "./game/view.ts";
-import { blockedTile, isFieldMinibossTile, isMergeMinibossTile, isNfieldMinibossTile, isTgardenMinibossTile, isXroadMinibossTile, isJshoreMinibossTile, isZgateMinibossTile, mapById, tileAt } from "./game/maps.ts";
+import { blockedTile, isFieldMinibossTile, isMergeMinibossTile, isNfieldMinibossTile, isTgardenMinibossTile, isXroadMinibossTile, isJshoreMinibossTile, isBowyardMinibossTile, isZgateMinibossTile, mapById, tileAt } from "./game/maps.ts";
 import { logWeaknesses, performPathAction, previewPathAction, talkLinesFor } from "./game/pathAction.ts";
 import type { BattleState, DialogueLine, Dir, GameSave, MapId, PathAction, Screen, TownNpc } from "./game/types.ts";
 
@@ -423,6 +427,29 @@ export default function App() {
     });
   }
 
+  function startBowyardMiniboss(at: GameSave) {
+    if (at.flags.ch8Clear || at.mapId !== "bowyard") return;
+    say([
+      {
+        speaker: "水寨弓頭目",
+        portrait: "./art/portrait-bandit.png",
+        text: "這箭道從今日起歸我。孫尚香？不過江東一個小姑娘。",
+      },
+      {
+        speaker: heroById(at.heroId).name,
+        portrait: heroById(at.heroId).portrait,
+        text: "箭道要清。帶領讓開，遠射就夠你受的。",
+      },
+    ]);
+    setPendingEnemies(["yellow", "bowchief"]);
+    setPendingKind("miniboss");
+    setBattleBg("./art/bg-road.png");
+    setPendingPreBattle({
+      name: "水寨弓頭目",
+      threat: "弓頭目橫弓：想過弓場，先過我這箭。",
+    });
+  }
+
 
   function startBountyOutlaw(at: GameSave) {
     if (!at.flags.bountyAccepted || at.flags.bountyTargetDown || at.flags.bountyDone) return;
@@ -593,6 +620,25 @@ function afterWin(prev: GameSave, finished: BattleState): GameSave {
           names: next.party.map((id) => heroById(id).name),
         });
         window.setTimeout(() => setChapterClearReady(true), 2500);
+      } else if (next.chronicleId === "sunshangxiang8" || pendingEnemies.includes("bowchief")) {
+        next.flags.ch8Clear = true;
+        next = addJournal(next, "ch8-clear");
+        patchProgress({ ch8Clear: true, ch8Started: true });
+        const clearTitle = CHRONICLES.sunshangxiang8.clearTitle;
+        setPendingEnding([
+          {
+            speaker: heroById(next.heroId).name,
+            portrait: heroById(next.heroId).portrait,
+            text: "弓頭目的旗倒了。水寨箭道再開，遠射可及江面。",
+          },
+          { speaker: "系統", text: "孫尚香列傳初章結束。仍可在江東水寨與弓場活動。" },
+        ]);
+        setChapterClearReady(false);
+        setChapterClear({
+          title: clearTitle,
+          names: next.party.map((id) => heroById(id).name),
+        });
+        window.setTimeout(() => setChapterClearReady(true), 2500);
       } else if (next.chronicleId === "zhuge4" || pendingEnemies.includes("schemer")) {
         next.flags.ch4Clear = true;
         next = addJournal(next, "ch4-clear");
@@ -756,6 +802,9 @@ function afterWin(prev: GameSave, finished: BattleState): GameSave {
       if (save.mapId === "jshore" && bump.id === "zy-raider" && !save.flags.ch7Clear) {
         startJshoreMiniboss(save);
       }
+      if (save.mapId === "bowyard" && bump.id === "ssx-bowchief" && !save.flags.ch8Clear) {
+        startBowyardMiniboss(save);
+      }
       if (save.mapId === "road" && bump.id === "bounty-outlaw") {
         startBountyOutlaw(save);
       }
@@ -826,6 +875,11 @@ function afterWin(prev: GameSave, finished: BattleState): GameSave {
       startJshoreMiniboss(next);
       return;
     }
+    if (save.mapId === "bowyard" && !next.flags.ch8Clear && (ch === "B" || isBowyardMinibossTile(x, y))) {
+      setSave(next);
+      startBowyardMiniboss(next);
+      return;
+    }
     const warp = m.warps.find((w) => w.x === x && w.y === y);
     if (warp) {
       if (warp.requireFlag && !next.flags[warp.requireFlag]) {
@@ -852,6 +906,8 @@ function afterWin(prev: GameSave, finished: BattleState): GameSave {
       // miniboss path only until ch6Clear
     } else if (next.mapId === "jshore" && !next.flags.ch7Clear) {
       // miniboss path only until ch7Clear
+    } else if (next.mapId === "bowyard" && !next.flags.ch8Clear) {
+      // miniboss path only until ch8Clear
     } else if (encMap.encounter && (next.mapId === "road" || next.mapId === "field" || next.mapId === "merge" || next.mapId === "zgate" || next.mapId === "nfield")) {
       const max = encMap.encounter.steps;
       const fill = (next.encounterFill ?? 0) + 1;
@@ -989,6 +1045,11 @@ function afterWin(prev: GameSave, finished: BattleState): GameSave {
       if (hit.npc.id === "zy-raider" && !save.flags.ch7Clear) {
         sfx.click();
         startJshoreMiniboss(save);
+        return;
+      }
+      if (hit.npc.id === "ssx-bowchief" && !save.flags.ch8Clear) {
+        sfx.click();
+        startBowyardMiniboss(save);
         return;
       }
       setPathNpc(hit.npc);
@@ -1347,6 +1408,11 @@ function afterWin(prev: GameSave, finished: BattleState): GameSave {
             sfx.click();
             setScreen("zhouyuConfirm");
           }}
+          onSunshangxiang={() => {
+            unlockAudio();
+            sfx.click();
+            setScreen("sunshangxiangConfirm");
+          }}
           onOpenFourRoads={() => {
             unlockAudio();
             sfx.click();
@@ -1361,6 +1427,11 @@ function afterWin(prev: GameSave, finished: BattleState): GameSave {
             unlockAudio();
             sfx.click();
             setScreen("sixRoads");
+          }}
+          onOpenSevenRoads={() => {
+            unlockAudio();
+            sfx.click();
+            setScreen("sevenRoads");
           }}
           onBountyQa={() => {
             unlockAudio();
@@ -1541,6 +1612,28 @@ function afterWin(prev: GameSave, finished: BattleState): GameSave {
           }}
         />
       )}
+      {screen === "sunshangxiangConfirm" && (
+        <ChronicleConfirm
+          chronicleId={SUNSHANGXIANG_CHRONICLE_ID}
+          onBack={() => setScreen("title")}
+          onConfirm={() => {
+            patchProgress({ ch8Started: true });
+            const base = newSunshangxiangSave();
+            const s = persist({
+              ...base,
+              mapId: "bowyard",
+              x: 7,
+              y: 3,
+              facing: "up",
+              encounterFill: 0,
+            });
+            setSave(s);
+            setScreen("world");
+            say(sunshangxiangOpening());
+            maybeShowTips();
+          }}
+        />
+      )}
       {screen === "fourRoads" && (
         <FourRoadsPanel onBack={() => setScreen("title")} />
       )}
@@ -1549,6 +1642,9 @@ function afterWin(prev: GameSave, finished: BattleState): GameSave {
       )}
       {screen === "sixRoads" && (
         <SixRoadsPanel onBack={() => setScreen("title")} />
+      )}
+      {screen === "sevenRoads" && (
+        <SevenRoadsPanel onBack={() => setScreen("title")} />
       )}
       {screen === "settings" && (
         <SettingsPanel onBack={() => setScreen(save ? "world" : "title")} />
@@ -1772,6 +1868,48 @@ function afterWin(prev: GameSave, finished: BattleState): GameSave {
             if (save.mapId !== "xroad" || save.flags.ch6Clear) return;
             sfx.click();
             startXroadMiniboss(save);
+          }}
+          onQuickJshore={() => {
+            if (!save || line || pathNpc || menu || overnight || chapterClear || nightTalk || nightDeep) return;
+            if (save.mapId !== "chaisang") return;
+            sfx.step();
+            const next = persist({
+              ...save,
+              mapId: "jshore",
+              x: 7,
+              y: 3,
+              facing: "up",
+              encounterFill: 0,
+            });
+            setSave(next);
+            flash("出碼頭，前往柴桑江岸");
+          }}
+          onChallengeRaider={() => {
+            if (!save || line || pathNpc || menu || overnight || chapterClear || nightTalk || nightDeep) return;
+            if (save.mapId !== "jshore" || save.flags.ch7Clear) return;
+            sfx.click();
+            startJshoreMiniboss(save);
+          }}
+          onQuickBowyard={() => {
+            if (!save || line || pathNpc || menu || overnight || chapterClear || nightTalk || nightDeep) return;
+            if (save.mapId !== "waterfort") return;
+            sfx.step();
+            const next = persist({
+              ...save,
+              mapId: "bowyard",
+              x: 7,
+              y: 3,
+              facing: "up",
+              encounterFill: 0,
+            });
+            setSave(next);
+            flash("出水寨，前往江東弓場");
+          }}
+          onChallengeBowchief={() => {
+            if (!save || line || pathNpc || menu || overnight || chapterClear || nightTalk || nightDeep) return;
+            if (save.mapId !== "bowyard" || save.flags.ch8Clear) return;
+            sfx.click();
+            startBowyardMiniboss(save);
           }}
           onNightTalk={() => {
             if (!save || line || pathNpc || menu || overnight || chapterClear || nightTalk || nightDeep) return;

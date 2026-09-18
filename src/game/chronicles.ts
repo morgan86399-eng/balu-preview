@@ -108,6 +108,17 @@ export const CHRONICLES: Record<ChronicleId, ChronicleDef> = {
     startY: 4,
     partnerId: "sunshangxiang",
   },
+  sunshangxiang8: {
+    id: "sunshangxiang8",
+    heroId: "sunshangxiang",
+    title: "孫尚香列傳",
+    summary: "江東水寨弓弦未鬆。先帶領清開箭道，再以遠射擊破水寨弓頭目。",
+    clearTitle: "孫尚香列傳・初章既竟",
+    startMap: "waterfort",
+    startX: 6,
+    startY: 4,
+    partnerId: "zhaoyun",
+  },
 };
 
 export const SECOND_CHRONICLE_ID: ChronicleId = "zhaoyun2";
@@ -117,6 +128,7 @@ export const ZHUGE_CHRONICLE_ID: ChronicleId = "zhuge4";
 export const LIUBEI_CHRONICLE_ID: ChronicleId = "liubei5";
 export const CAOCAO_CHRONICLE_ID: ChronicleId = "caocao6";
 export const ZHOUYU_CHRONICLE_ID: ChronicleId = "zhouyu7";
+export const SUNSHANGXIANG_CHRONICLE_ID: ChronicleId = "sunshangxiang8";
 
 export function chronicleById(id: ChronicleId): ChronicleDef {
   return CHRONICLES[id] ?? CHRONICLES.ch1;
@@ -541,6 +553,64 @@ export function newZhouyuSave(): GameSave {
     steps: 0,
     chapter: 1,
     chronicleId: "zhouyu7",
+    equip: {},
+    encounterFill: 0,
+    pathMastery: {},
+  };
+}
+
+export function sunshangxiangOpening(): DialogueLine[] {
+  const h = heroById("sunshangxiang");
+  return [
+    {
+      speaker: h.name,
+      portrait: h.portrait,
+      text: "水寨的旗在風裡抖。弓場那頭有人攔箭道——距離剛好在我弦上。",
+    },
+    {
+      speaker: h.name,
+      portrait: h.portrait,
+      text: "先把人帶領開，箭才射得準。遠射比硬拼乾淨。",
+    },
+    {
+      speaker: "系統",
+      text: "這是孫尚香列傳短線。帶領清道後，擊敗弓場小頭目即可寫完初章。",
+    },
+  ];
+}
+
+export function newSunshangxiangSave(): GameSave {
+  const def = CHRONICLES.sunshangxiang8;
+  const heroId = def.heroId;
+  const party = def.partnerId ? [heroId, def.partnerId] : [heroId];
+  const vitalsMap: GameSave["vitals"] = {};
+  for (const id of party) vitalsMap[id] = vitals(id, 1);
+  return {
+    version: 2,
+    heroId,
+    party,
+    mapId: def.startMap,
+    x: def.startX,
+    y: def.startY,
+    facing: "up",
+    flags: {
+      companionJoined: Boolean(def.partnerId),
+      gotIronSpear: true,
+      ch8Started: true,
+    },
+    gold: 90,
+    items: { herb: 2, salve: 0, oil: 1, "iron-spear": 1, "leather-armor": 1 },
+    inquired: [],
+    weaknessLog: {},
+    journal: ["ch8-start"],
+    clues: ["江東弓場有水寨弓頭目。"],
+    hour: 10,
+    level: 1,
+    exp: 0,
+    vitals: vitalsMap,
+    steps: 0,
+    chapter: 1,
+    chronicleId: "sunshangxiang8",
     equip: {},
     encounterFill: 0,
     pathMastery: {},

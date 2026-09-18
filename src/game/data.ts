@@ -501,6 +501,24 @@ export const ENEMIES: Record<string, EnemyDef> = {
     gold: 48,
     exp: 60,
   },
+  bowchief: {
+    id: "bowchief",
+    name: "水寨弓頭目",
+    portrait: "./art/portrait-bandit.png",
+    maxHp: 96,
+    maxSp: 16,
+    atk: 15,
+    def: 6,
+    spd: 13,
+    shields: 3,
+    weaknesses: ["bow", "fire", "spear"],
+    skills: [
+      { id: "volley", name: "亂箭", sp: 0, weapon: "bow", hits: 2, power: 0.7 },
+      { id: "cover-shot", name: "掩射", sp: 7, weapon: "bow", hits: 1, power: 0.55, aoe: true },
+    ],
+    gold: 48,
+    exp: 60,
+  },
   remnant: {
     id: "remnant",
     name: "黃巾渠帥殘黨",
@@ -631,6 +649,22 @@ export const JOURNAL: Record<string, { title: string; body: string }> = {
   "ch6-clear": {
     title: "曹操列傳・初章既竟",
     body: "探馬頭目已除。官道風聲，暫入袖中。",
+  },
+  "ch7-start": {
+    title: "柴桑碼頭",
+    body: "周瑜短列傳開始。柴桑江岸有江賊小頭目。",
+  },
+  "ch7-clear": {
+    title: "周瑜列傳・初章既竟",
+    body: "江賊小頭目已除。柴桑水寨的鼓聲，暫歸都督麾下。",
+  },
+  "ch8-start": {
+    title: "江東水寨",
+    body: "孫尚香短列傳開始。江東弓場有水寨弓頭目攔箭道。",
+  },
+  "ch8-clear": {
+    title: "孫尚香列傳・初章既竟",
+    body: "弓頭目已除。水寨箭道再開，遠射可及江面。",
   },
   "bounty-start": {
     title: "懸賞木牌",

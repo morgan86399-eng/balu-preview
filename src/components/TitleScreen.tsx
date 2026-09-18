@@ -8,6 +8,8 @@ import {
   ZHUGE_CHRONICLE_ID,
   LIUBEI_CHRONICLE_ID,
   CAOCAO_CHRONICLE_ID,
+  ZHOUYU_CHRONICLE_ID,
+  SUNSHANGXIANG_CHRONICLE_ID,
 } from "../game/chronicles.ts";
 import { HEROES, heroById } from "../game/data.ts";
 import {
@@ -28,8 +30,11 @@ import {
   liubeiStatus,
   caocaoStatus,
   zhouyuStatus,
+  sunshangxiangStatus,
   sixRoadsUnlocked,
   sixRoadsLockHint,
+  sevenRoadsUnlocked,
+  sevenRoadsLockHint,
   emptyProgress,
   fourRoadsUnlocked,
   fourRoadsLockHint,
@@ -70,9 +75,11 @@ export default function TitleScreen({
   onLiubei,
   onCaocao,
   onZhouyu,
+  onSunshangxiang,
   onOpenFourRoads,
   onOpenFiveRoads,
   onOpenSixRoads,
+  onOpenSevenRoads,
   onBountyQa,
   onOpenSaveSlots,
   onOpenWorldMap,
@@ -90,9 +97,11 @@ export default function TitleScreen({
   onLiubei: () => void;
   onCaocao: () => void;
   onZhouyu: () => void;
+  onSunshangxiang: () => void;
   onOpenFourRoads: () => void;
   onOpenFiveRoads: () => void;
   onOpenSixRoads: () => void;
+  onOpenSevenRoads: () => void;
   onBountyQa: () => void;
   onOpenSaveSlots: () => void;
   onOpenWorldMap: () => void;
@@ -110,9 +119,11 @@ export default function TitleScreen({
   const lb = liubeiStatus(progress);
   const cc = caocaoStatus(progress);
   const zy7 = zhouyuStatus(progress);
+  const ssx = sunshangxiangStatus(progress);
   const [fourGreyQa, setFourGreyQa] = useState(false);
   const [fiveGreyQa, setFiveGreyQa] = useState(false);
   const [sixGreyQa, setSixGreyQa] = useState(false);
+  const [sevenGreyQa, setSevenGreyQa] = useState(false);
   const fourOk = fourGreyQa ? false : fourRoadsUnlocked(progress);
   const fourHint = fourGreyQa
     ? fourRoadsLockHint(emptyProgress())
@@ -125,6 +136,10 @@ export default function TitleScreen({
   const sixHint = sixGreyQa
     ? sixRoadsLockHint(emptyProgress())
     : sixRoadsLockHint(progress);
+  const sevenOk = sevenGreyQa ? false : sevenRoadsUnlocked(progress);
+  const sevenHint = sevenGreyQa
+    ? sevenRoadsLockHint(emptyProgress())
+    : sevenRoadsLockHint(progress);
   const unlocked = confluenceUnlocked(progress);
   const lockHint = confluenceLockHint(progress);
   const mapOk = worldMapUnlocked(progress);
@@ -214,6 +229,16 @@ export default function TitleScreen({
             {zy7}
           </span>
         </div>
+        <div
+          className="title-progress-row sunshangxiang"
+          data-line="sunshangxiang"
+          data-qa="ssx-progress-row"
+        >
+          <span className="tp-name">孫尚香列傳</span>
+          <span className={`tp-status ${statusClass(ssx)}`} data-status={ssx} data-qa="ssx-status">
+            {ssx}
+          </span>
+        </div>
       </div>
 
       <div className="btn-row title-enter">
@@ -296,6 +321,20 @@ export default function TitleScreen({
         >
           六路總覽
         </button>
+        <button
+          type="button"
+          className={`btn${sevenOk ? "" : " locked"}`}
+          data-qa="seven-roads-entry"
+          disabled={!sevenOk}
+          title={sevenOk ? "七路總覽" : sevenHint}
+          onClick={() => {
+            if (!sevenOk) return;
+            setSevenGreyQa(false);
+            onOpenSevenRoads();
+          }}
+        >
+          七路總覽
+        </button>
       </div>
       {!fourOk && (
         <p
@@ -325,6 +364,16 @@ export default function TitleScreen({
         >
           {sixGreyQa ? "【灰態測試】" : ""}
           {sixHint}
+        </p>
+      )}
+      {!sevenOk && (
+        <p
+          className={`title-lock-hint title-enter seven-roads-lock-hint${sevenGreyQa ? " qa-grey" : ""}`}
+          data-qa="seven-roads-lock-hint"
+          data-grey-qa={sevenGreyQa ? "1" : "0"}
+        >
+          {sevenGreyQa ? "【灰態測試】" : ""}
+          {sevenHint}
         </p>
       )}
       <div className="btn-row title-enter" style={{ marginTop: 10 }}>
@@ -375,6 +424,14 @@ export default function TitleScreen({
           onClick={onZhouyu}
         >
           周瑜列傳
+        </button>
+        <button
+          type="button"
+          className="btn"
+          data-qa="sunshangxiang-chronicle"
+          onClick={onSunshangxiang}
+        >
+          孫尚香列傳
         </button>
         <button
           type="button"
@@ -500,6 +557,18 @@ export default function TitleScreen({
       <button
         type="button"
         className="btn title-qa-unlock title-enter"
+        data-qa="qa-start-sunshangxiang"
+        onClick={() => {
+          patchProgress({ ch8Started: true });
+          bump((n) => n + 1);
+          onSunshangxiang();
+        }}
+      >
+        孫尚香短線測試
+      </button>
+      <button
+        type="button"
+        className="btn title-qa-unlock title-enter"
         data-qa="qa-start-bounty"
         onClick={() => {
           onBountyQa();
@@ -599,6 +668,45 @@ export default function TitleScreen({
         }}
       >
         六路既竟面板測試
+      </button>
+      <button
+        type="button"
+        className="btn title-qa-unlock title-enter"
+        data-qa="qa-seven-roads-grey"
+        onClick={() => {
+          setSevenGreyQa(true);
+          bump((n) => n + 1);
+        }}
+      >
+        七路總覽灰態測試
+      </button>
+      <button
+        type="button"
+        className="btn title-qa-unlock title-enter"
+        data-qa="qa-seven-roads-clear"
+        onClick={() => {
+          patchProgress({
+            ch1Clear: true,
+            ch1Started: true,
+            ch2Clear: true,
+            ch2Started: true,
+            ch3Clear: true,
+            ch3Started: true,
+            ch4Clear: true,
+            ch4Started: true,
+            ch5Clear: true,
+            ch5Started: true,
+            ch6Clear: true,
+            ch6Started: true,
+            ch7Clear: true,
+            ch7Started: true,
+          });
+          setSevenGreyQa(false);
+          bump((n) => n + 1);
+          onOpenSevenRoads();
+        }}
+      >
+        七路既竟面板測試
       </button>
       <button
         type="button"
@@ -913,6 +1021,8 @@ export function ChronicleConfirm({
   const isZhuge = chronicleId === ZHUGE_CHRONICLE_ID;
   const isLiubei = chronicleId === LIUBEI_CHRONICLE_ID;
   const isCaocao = chronicleId === CAOCAO_CHRONICLE_ID;
+  const isZhouyu = chronicleId === ZHOUYU_CHRONICLE_ID;
+  const isSunshangxiang = chronicleId === SUNSHANGXIANG_CHRONICLE_ID;
   const qa = isConfluence
     ? "confluence-confirm"
     : isZhangFei
@@ -923,7 +1033,11 @@ export function ChronicleConfirm({
           ? "liubei-confirm"
           : isCaocao
             ? "caocao-confirm"
-            : "chronicle-confirm";
+            : isZhouyu
+              ? "zhouyu-confirm"
+              : isSunshangxiang
+                ? "sunshangxiang-confirm"
+                : "chronicle-confirm";
   const departQa = isConfluence
     ? "confluence-depart"
     : isZhangFei
@@ -934,7 +1048,11 @@ export function ChronicleConfirm({
           ? "liubei-depart"
           : isCaocao
             ? "caocao-depart"
-            : "chronicle-depart";
+            : isZhouyu
+              ? "zhouyu-depart"
+              : isSunshangxiang
+                ? "sunshangxiang-depart"
+                : "chronicle-depart";
   return (
     <section className="screen select-stage" data-qa={qa}>
       <div className="bg-plate" style={{ backgroundImage: "url(./art/bg-title.png)", opacity: 0.45 }} />
@@ -1419,6 +1537,61 @@ export function SixRoadsPanel({ onBack }: { onBack: () => void }) {
               type="button"
               className="btn btn-primary"
               data-qa="six-roads-close"
+              disabled={!ready}
+              onClick={() => {
+                if (!ready) return;
+                onBack();
+              }}
+            >
+              返回標題
+            </button>
+          </div>
+        </div>
+      </div>
+    </section>
+  );
+}
+
+/** 七路總覽 — unlocked when 關趙張諸劉曹周 all 初章既竟; holds 「七路初章既竟」 ≥2.5s. */
+export function SevenRoadsPanel({ onBack }: { onBack: () => void }) {
+  const [ready, setReady] = useState(false);
+  useEffect(() => {
+    const timer = window.setTimeout(() => setReady(true), 2500);
+    return () => window.clearTimeout(timer);
+  }, []);
+  const rows = [
+    { name: "關羽", blurb: "義氣破北營，青龍刀定新野。" },
+    { name: "趙雲", blurb: "白馬銀槍，護民於常山平野。" },
+    { name: "張飛", blurb: "燕人虎威，喝退鎮口黃巾。" },
+    { name: "諸葛亮", blurb: "臥龍出山，以計破偽軍師。" },
+    { name: "劉備", blurb: "桃園之誓，拔鄉霸而安民。" },
+    { name: "曹操", blurb: "官道收旗，探馬風聲入袖。" },
+    { name: "周瑜", blurb: "柴桑鼓定，江賊旗倒入水。" },
+  ];
+  return (
+    <section className="screen select-stage" data-qa="seven-roads-panel">
+      <div className="bg-plate" style={{ backgroundImage: "url(./art/bg-title.png)", opacity: 0.4 }} />
+      <div className="select-inner">
+        <div className="sheet gold-frame seven-roads-sheet" style={{ margin: "24px auto", maxWidth: 480 }}>
+          <h1 className="seven-roads-title" data-qa="seven-roads-title" style={{ marginTop: 0, color: "var(--gold)" }}>
+            七路初章既竟
+          </h1>
+          <p className="seven-roads-hold-hint" aria-hidden={ready}>
+            {ready ? "" : "……"}
+          </p>
+          <ul className="seven-roads-list" data-qa="seven-roads-list">
+            {rows.map((r) => (
+              <li key={r.name} className="seven-roads-row gold-frame chip">
+                <b>{r.name}</b>
+                <span>{r.blurb}</span>
+              </li>
+            ))}
+          </ul>
+          <div className="btn-row" style={{ marginTop: 14 }}>
+            <button
+              type="button"
+              className="btn btn-primary"
+              data-qa="seven-roads-close"
               disabled={!ready}
               onClick={() => {
                 if (!ready) return;

@@ -32,8 +32,8 @@ export function placeName(map: MapDef, x: number, y: number, npcs: TownNpc[]): s
   if (ch === "w" || nextToWell) return "井邊";
   if (ch === "G") {
     if (map.id === "xinyue") return "城門";
-    if (map.id === "yunzhen" || map.id === "zhuolu" || map.id === "wolong") return "驛門";
-    if (map.id === "road" || map.id === "field" || map.id === "merge" || map.id === "zgate" || map.id === "nfield") return "回城路口";
+    if (map.id === "yunzhen" || map.id === "zhuolu" || map.id === "wolong" || map.id === "chaisang" || map.id === "waterfort") return "驛門";
+    if (map.id === "road" || map.id === "field" || map.id === "merge" || map.id === "zgate" || map.id === "nfield" || map.id === "jshore" || map.id === "bowyard") return "回城路口";
     return "營門";
   }
   if (ch === "I" || ch === "D") return "客棧門口";
@@ -45,6 +45,8 @@ export function placeName(map: MapDef, x: number, y: number, npcs: TownNpc[]): s
     if (map.id === "nfield") return "偽軍師旗下";
     if (map.id === "tgarden") return "鄉霸旗下";
     if (map.id === "xroad") return "探馬旗下";
+    if (map.id === "jshore") return "江賊旗下";
+    if (map.id === "bowyard") return "弓頭目旗下";
     return "渠帥大帳";
   }
   if (ch === "F") return "營火邊";
@@ -85,6 +87,16 @@ export function objectiveFor(save: GameSave): string {
     if (save.flags.ch6Clear) return "曹操列傳初章已寫完。";
     if (save.mapId === "xroad") return "北上擊敗黃巾探馬頭目。";
     return "出郊門，前往許昌官道。";
+  }
+  if (save.chronicleId === "zhouyu7") {
+    if (save.flags.ch7Clear) return "周瑜列傳初章已寫完。";
+    if (save.mapId === "jshore") return "北上擊敗江賊小頭目。";
+    return "出碼頭，前往柴桑江岸。";
+  }
+  if (save.chronicleId === "sunshangxiang8") {
+    if (save.flags.ch8Clear) return "孫尚香列傳初章已寫完。";
+    if (save.mapId === "bowyard") return "帶領清開箭道，遠射水寨弓頭目。";
+    return "出水寨，前往江東弓場。";
   }
   if (save.flags.bossDown) return "第一章已寫完。";
   const withThird = save.party.length >= 3 || save.flags.thirdJoined;
