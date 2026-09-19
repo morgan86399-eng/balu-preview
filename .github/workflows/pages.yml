@@ -37,12 +37,12 @@ jobs:
         run: npm run build
       - name: Restore pinned CDN index
         # vite build + write-cdn-index may rewrite pages/index.html to @main;
-        # the committed pin (commit SHA + ?v=n13fix1) is the live source of truth.
+        # the committed pin (commit SHA + ?v=n14) is the live source of truth.
         run: git checkout -- pages/index.html && cp pages/index.html dist/index.html
-      - name: Verify N13 live index
+      - name: Verify N14 live index
         run: |
           set -euo pipefail
-          grep -F "?v=n13fix1" pages/index.html dist/index.html
+          grep -F "?v=n14" pages/index.html dist/index.html
           grep -F "portrait-liubei.png" src/game/data.ts
           if grep -n 'src=.*n10-hotfix' pages/index.html dist/index.html; then
             echo "N10 hotfix script must not be loaded on live"
@@ -60,6 +60,10 @@ jobs:
           grep -F "六路既竟面板測試" "preview-assets/$(basename "$JS")"
           grep -F "孫尚香短線測試" "preview-assets/$(basename "$JS")"
           grep -F "周瑜短線測試" "preview-assets/$(basename "$JS")"
+          grep -F "全員既竟面板測試" "preview-assets/$(basename "$JS")"
+          grep -F "全員總覽灰態測試" "preview-assets/$(basename "$JS")"
+          grep -F "全員初章既竟" "preview-assets/$(basename "$JS")"
+          grep -F "全員初章" "preview-assets/$(basename "$JS")"
           python3 - <<'PY'
           from pathlib import Path
           import struct
@@ -73,7 +77,20 @@ jobs:
           assert lb != gy, (lb, gy)
           assert (w, h) == (540, 720), (w, h)
           assert color_type == 2, color_type
-          print("portraits ok", lb, gy, w, h)
+          sizes = {}
+          for name in ("yellowturban", "bandit", "officer", "boss"):
+              p = Path(f"public/art/portrait-{name}.png")
+              raw = p.read_bytes()
+              ew, eh = struct.unpack(">II", raw[16:24])
+              assert (ew, eh) == (540, 720), (name, ew, eh)
+              assert raw[25] == 2, (name, raw[25])
+              sizes[name] = p.stat().st_size
+          assert len(set(sizes.values())) == 4, sizes
+          road = Path("public/art/bg-road.png").stat().st_size
+          battle = Path("public/art/bg-battle.png").stat().st_size
+          assert road != battle, (road, battle)
+          assert road == 786432, road
+          print("portraits ok", lb, gy, w, h, sizes, road, battle)
           PY
           grep -F "hero-card-" "preview-assets/$(basename "$JS")"
           grep -F "hero-card-art" "preview-assets/$(basename "$JS")"
@@ -90,7 +107,13 @@ jobs:
           for path in \
             pages/index.html \
             public/art/portrait-liubei.png \
-            public/art/portrait-guanyu.png
+            public/art/portrait-guanyu.png \
+            public/art/portrait-yellowturban.png \
+            public/art/portrait-bandit.png \
+            public/art/portrait-officer.png \
+            public/art/portrait-boss.png \
+            public/art/bg-road.png \
+            public/art/bg-battle.png
           do
             curl -fsSL "https://purge.jsdelivr.net/gh/morgan86399-eng/balu-preview@main/${path}" || true
             echo

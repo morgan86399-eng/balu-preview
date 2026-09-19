@@ -648,10 +648,20 @@ export function npcPortrait(npc: TownNpc): string {
   if (npc.id === "lookout" || npc.id === "dc-moonchief") return "./art/portrait-officer.png";
   if (npc.id === "vendor" || npc.id === "innkeeper" || npc.id === "yz-vendor") return "./art/portrait-caocao.png";
   if (npc.id === "elder" || npc.id === "bard" || npc.id === "yz-elder" || npc.id === "zg-elder" || npc.id === "zg-scholar") return "./art/portrait-zhuge.png";
-  if (npc.id === "drinker" || npc.id === "zf-drinker" || npc.id === "zf-gatechief") return "./art/portrait-zhangfei.png";
+  if (npc.id === "drinker" || npc.id === "zf-drinker") return "./art/portrait-zhangfei.png";
   if (npc.id === "wayfarer" || npc.id === "yz-scout" || npc.id === "zg-scout" || npc.id === "zf-scout") return "./art/portrait-zhaoyun.png";
   if (npc.id === "yz-wounded" || npc.id === "zg-wounded" || npc.id === "zf-wounded") return "./art/portrait-officer.png";
-  if (npc.id === "yz-lieutenant") return "./art/portrait-bandit.png";
+  if (
+    npc.id === "yz-lieutenant" ||
+    npc.id === "zf-gatechief" ||
+    npc.id === "lb-tyrant" ||
+    npc.id === "cc-enforcer" ||
+    npc.id === "zy-raider" ||
+    npc.id === "ssx-bowchief" ||
+    npc.id === "bounty-outlaw"
+  ) {
+    return "./art/portrait-bandit.png";
+  }
   if (npc.id === "merge-remnant" || npc.id === "zg-schemer") return "./art/portrait-boss.png";
   if (npc.id === "merge-campfire") return "./art/portrait-zhouyu.png";
   if (npc.id === "merge-scout") return "./art/portrait-zhaoyun.png";

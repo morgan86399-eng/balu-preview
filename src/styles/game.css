@@ -2747,6 +2747,54 @@ button.btn.locked[data-qa="eight-roads-entry"] {
   filter: grayscale(0.6);
 }
 
+.all-nine-sheet {
+  max-width: 480px;
+}
+.all-nine-title {
+  font-family: var(--font-serif);
+  letter-spacing: 0.14em;
+  text-align: center;
+  font-size: clamp(1.6rem, 4vw, 2rem);
+  font-weight: 900;
+  text-shadow: 0 0 14px rgba(201, 162, 39, 0.35);
+}
+.all-nine-list {
+  list-style: none;
+  padding: 0;
+  margin: 8px 0 0;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.all-nine-row {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  padding: 8px 10px;
+}
+.all-nine-row b {
+  color: var(--gold);
+}
+.all-nine-hold-hint {
+  text-align: center;
+  color: var(--muted);
+  min-height: 1.2em;
+}
+.all-nine-lock-hint {
+  color: var(--muted);
+  font-size: 0.9rem;
+  margin: 6px 0 0;
+}
+.all-nine-lock-hint.qa-grey {
+  color: #b8b0a0;
+  border: 1px dashed #666;
+  padding: 6px 8px;
+}
+button.btn.locked[data-qa="all-nine-entry"] {
+  opacity: 0.45;
+  filter: grayscale(0.6);
+}
+
 .travel-banner-overlay {
   z-index: 90;
   display: flex;
