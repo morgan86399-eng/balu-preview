@@ -10,6 +10,7 @@ import TitleScreen, {
   SixRoadsPanel,
   SevenRoadsPanel,
   EightRoadsPanel,
+  AllNinePanel,
   PartySelectPanel,
   SaveSlotsPanel,
   SettingsPanel,
@@ -271,9 +272,9 @@ export default function App() {
     ]);
     setPendingEnemies(["yellow", "lieutenant"]);
     setPendingKind("miniboss");
-    setBattleBg("./art/bg-road.png");
-    setPendingPreBattle({
-      name: "黃巾小帥",
+        setBattleBg("./art/bg-battle.png");
+        setPendingPreBattle({
+          name: "黃巾小帥",
       threat: "小帥橫刀：想過平野，先過我這關。",
     });
   }
@@ -296,9 +297,9 @@ export default function App() {
     ]);
     setPendingEnemies(["yellow", "remnant"]);
     setPendingKind("miniboss");
-    setBattleBg("./art/bg-road.png");
-    setPendingPreBattle({
-      name: "黃巾渠帥殘黨",
+        setBattleBg("./art/bg-battle.png");
+        setPendingPreBattle({
+          name: "黃巾渠帥殘黨",
       threat: "殘黨橫刀：合流官道，從今日起歸我。",
     });
   }
@@ -320,9 +321,9 @@ export default function App() {
     ]);
     setPendingEnemies(["yellow", "gatechief"]);
     setPendingKind("miniboss");
-    setBattleBg("./art/bg-road.png");
-    setPendingPreBattle({
-      name: "黃巾鎮口頭目",
+        setBattleBg("./art/bg-battle.png");
+        setPendingPreBattle({
+          name: "黃巾鎮口頭目",
       threat: "頭目橫刀：想過鎮口，先過我這關。",
     });
   }
@@ -353,9 +354,9 @@ export default function App() {
     ]);
     setPendingEnemies(["yellow", "schemer"]);
     setPendingKind("miniboss");
-    setBattleBg("./art/bg-road.png");
-    setPendingPreBattle({
-      name: "黃巾偽軍師",
+        setBattleBg("./art/bg-battle.png");
+        setPendingPreBattle({
+          name: "黃巾偽軍師",
       threat: "偽軍師搖扇：計定勝負——看誰先破誰的陣。",
     });
   }
@@ -378,9 +379,9 @@ export default function App() {
     ]);
     setPendingEnemies(["yellow", "tyrant"]);
     setPendingKind("miniboss");
-    setBattleBg("./art/bg-road.png");
-    setPendingPreBattle({
-      name: "黃巾鄉霸",
+        setBattleBg("./art/bg-battle.png");
+        setPendingPreBattle({
+          name: "黃巾鄉霸",
       threat: "鄉霸橫刀：想過桃園外，先過我這關。",
     });
   }
@@ -401,9 +402,9 @@ export default function App() {
     ]);
     setPendingEnemies(["yellow", "enforcer"]);
     setPendingKind("miniboss");
-    setBattleBg("./art/bg-road.png");
-    setPendingPreBattle({
-      name: "黃巾探馬頭目",
+        setBattleBg("./art/bg-battle.png");
+        setPendingPreBattle({
+          name: "黃巾探馬頭目",
       threat: "頭目橫刀：想過官道，先過我這關。",
     });
   }
@@ -424,9 +425,9 @@ export default function App() {
     ]);
     setPendingEnemies(["yellow", "raider"]);
     setPendingKind("miniboss");
-    setBattleBg("./art/bg-road.png");
-    setPendingPreBattle({
-      name: "江賊小頭目",
+        setBattleBg("./art/bg-battle.png");
+        setPendingPreBattle({
+          name: "江賊小頭目",
       threat: "小頭目橫刀：想過江岸，先過我這關。",
     });
   }
@@ -447,9 +448,9 @@ export default function App() {
     ]);
     setPendingEnemies(["yellow", "bowchief"]);
     setPendingKind("miniboss");
-    setBattleBg("./art/bg-road.png");
-    setPendingPreBattle({
-      name: "水寨弓頭目",
+        setBattleBg("./art/bg-battle.png");
+        setPendingPreBattle({
+          name: "水寨弓頭目",
       threat: "弓頭目橫弓：想過弓場，先過我這箭。",
     });
   }
@@ -470,9 +471,9 @@ export default function App() {
     ]);
     setPendingEnemies(["yellow", "moonchief"]);
     setPendingKind("miniboss");
-    setBattleBg("./art/bg-road.png");
-    setPendingPreBattle({
-      name: "庭院悍衛",
+        setBattleBg("./art/bg-battle.png");
+        setPendingPreBattle({
+          name: "庭院悍衛",
       threat: "悍衛橫刀：想過庭院，先過我這關。",
     });
   }
@@ -494,9 +495,9 @@ export default function App() {
     ]);
     setPendingEnemies(["yellow", "outlaw"]);
     setPendingKind("skirmish");
-    setBattleBg("./art/bg-road.png");
-    setPendingPreBattle({
-      name: "黃巾懸賞賊",
+        setBattleBg("./art/bg-battle.png");
+        setPendingPreBattle({
+          name: "黃巾懸賞賊",
       threat: "懸賞賊橫刀：賞銀是我的，命是你的。",
     });
   }
@@ -990,7 +991,7 @@ function afterWin(prev: GameSave, finished: BattleState): GameSave {
         ]);
         setPendingEnemies(pack);
         setPendingKind("skirmish");
-        setBattleBg(next.mapId === "field" ? "./art/bg-road.png" : "./art/bg-road.png");
+        setBattleBg("./art/bg-battle.png");
         setPendingPreBattle(null);
         return;
       }
@@ -1504,6 +1505,11 @@ function afterWin(prev: GameSave, finished: BattleState): GameSave {
             sfx.click();
             setScreen("eightRoads");
           }}
+          onOpenAllNine={() => {
+            unlockAudio();
+            sfx.click();
+            setScreen("allNine");
+          }}
           onBountyQa={() => {
             unlockAudio();
             sfx.click();
@@ -1741,6 +1747,9 @@ function afterWin(prev: GameSave, finished: BattleState): GameSave {
       )}
       {screen === "eightRoads" && (
         <EightRoadsPanel onBack={() => setScreen("title")} />
+      )}
+      {screen === "allNine" && (
+        <AllNinePanel onBack={() => setScreen("title")} />
       )}
       {screen === "settings" && (
         <SettingsPanel onBack={() => setScreen(save ? "world" : "title")} />

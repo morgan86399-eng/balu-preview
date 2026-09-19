@@ -141,6 +141,26 @@ export function eightRoadsLockHint(p: MetaProgress = loadProgress()): string {
   return `未解鎖・缺：${missing.join("、")}`;
 }
 
+/** 八路條件＋貂蟬初章既竟（九人皆初章既竟）→ 全員初章既竟. */
+export function allNineUnlocked(p: MetaProgress = loadProgress()): boolean {
+  return eightRoadsUnlocked(p) && Boolean(p.ch9Clear);
+}
+
+export function allNineLockHint(p: MetaProgress = loadProgress()): string {
+  if (allNineUnlocked(p)) return "";
+  const missing: string[] = [];
+  if (!p.ch1Clear) missing.push("關羽列傳");
+  if (!p.ch2Clear) missing.push("趙雲列傳");
+  if (!p.ch3Clear) missing.push("張飛列傳");
+  if (!p.ch4Clear) missing.push("諸葛亮列傳");
+  if (!p.ch5Clear) missing.push("劉備列傳");
+  if (!p.ch6Clear) missing.push("曹操列傳");
+  if (!p.ch7Clear) missing.push("周瑜列傳");
+  if (!p.ch8Clear) missing.push("孫尚香列傳");
+  if (!p.ch9Clear) missing.push("貂蟬列傳");
+  return `未解鎖・缺：${missing.join("、")}`;
+}
+
 /** 六路條件＋周瑜初章既竟（關趙張諸劉曹周）→ 七路總覽. */
 export function sevenRoadsUnlocked(p: MetaProgress = loadProgress()): boolean {
   return sixRoadsUnlocked(p) && Boolean(p.ch7Clear);

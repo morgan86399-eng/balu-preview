@@ -39,6 +39,8 @@ import {
   sevenRoadsLockHint,
   eightRoadsUnlocked,
   eightRoadsLockHint,
+  allNineUnlocked,
+  allNineLockHint,
   emptyProgress,
   fourRoadsUnlocked,
   fourRoadsLockHint,
@@ -86,6 +88,7 @@ export default function TitleScreen({
   onOpenSixRoads,
   onOpenSevenRoads,
   onOpenEightRoads,
+  onOpenAllNine,
   onBountyQa,
   onOpenSaveSlots,
   onOpenWorldMap,
@@ -110,6 +113,7 @@ export default function TitleScreen({
   onOpenSixRoads: () => void;
   onOpenSevenRoads: () => void;
   onOpenEightRoads: () => void;
+  onOpenAllNine: () => void;
   onBountyQa: () => void;
   onOpenSaveSlots: () => void;
   onOpenWorldMap: () => void;
@@ -134,6 +138,7 @@ export default function TitleScreen({
   const [sixGreyQa, setSixGreyQa] = useState(false);
   const [sevenGreyQa, setSevenGreyQa] = useState(false);
   const [eightGreyQa, setEightGreyQa] = useState(false);
+  const [allNineGreyQa, setAllNineGreyQa] = useState(false);
   const fourOk = fourGreyQa ? false : fourRoadsUnlocked(progress);
   const fourHint = fourGreyQa
     ? fourRoadsLockHint(emptyProgress())
@@ -154,6 +159,10 @@ export default function TitleScreen({
   const eightHint = eightGreyQa
     ? eightRoadsLockHint(emptyProgress())
     : eightRoadsLockHint(progress);
+  const allNineOk = allNineGreyQa ? false : allNineUnlocked(progress);
+  const allNineHint = allNineGreyQa
+    ? allNineLockHint(emptyProgress())
+    : allNineLockHint(progress);
   const unlocked = confluenceUnlocked(progress);
   const lockHint = confluenceLockHint(progress);
   const mapOk = worldMapUnlocked(progress);
@@ -373,6 +382,20 @@ export default function TitleScreen({
         >
           八路總覽
         </button>
+        <button
+          type="button"
+          className={`btn${allNineOk ? "" : " locked"}`}
+          data-qa="all-nine-entry"
+          disabled={!allNineOk}
+          title={allNineOk ? "全員初章" : allNineHint}
+          onClick={() => {
+            if (!allNineOk) return;
+            setAllNineGreyQa(false);
+            onOpenAllNine();
+          }}
+        >
+          全員初章
+        </button>
       </div>
       {!fourOk && (
         <p
@@ -422,6 +445,16 @@ export default function TitleScreen({
         >
           {eightGreyQa ? "【灰態測試】" : ""}
           {eightHint}
+        </p>
+      )}
+      {!allNineOk && (
+        <p
+          className={`title-lock-hint title-enter all-nine-lock-hint${allNineGreyQa ? " qa-grey" : ""}`}
+          data-qa="all-nine-lock-hint"
+          data-grey-qa={allNineGreyQa ? "1" : "0"}
+        >
+          {allNineGreyQa ? "【灰態測試】" : ""}
+          {allNineHint}
         </p>
       )}
       <div className="btn-row title-enter" style={{ marginTop: 10 }}>
@@ -816,6 +849,49 @@ export default function TitleScreen({
         }}
       >
         八路既竟面板測試
+      </button>
+      <button
+        type="button"
+        className="btn title-qa-unlock title-enter"
+        data-qa="qa-all-nine-grey"
+        onClick={() => {
+          setAllNineGreyQa(true);
+          bump((n) => n + 1);
+        }}
+      >
+        全員總覽灰態測試
+      </button>
+      <button
+        type="button"
+        className="btn title-qa-unlock title-enter"
+        data-qa="qa-all-nine-clear"
+        onClick={() => {
+          patchProgress({
+            ch1Clear: true,
+            ch1Started: true,
+            ch2Clear: true,
+            ch2Started: true,
+            ch3Clear: true,
+            ch3Started: true,
+            ch4Clear: true,
+            ch4Started: true,
+            ch5Clear: true,
+            ch5Started: true,
+            ch6Clear: true,
+            ch6Started: true,
+            ch7Clear: true,
+            ch7Started: true,
+            ch8Clear: true,
+            ch8Started: true,
+            ch9Clear: true,
+            ch9Started: true,
+          });
+          setAllNineGreyQa(false);
+          bump((n) => n + 1);
+          onOpenAllNine();
+        }}
+      >
+        全員既竟面板測試
       </button>
       <button
         type="button"
@@ -1782,6 +1858,63 @@ export function EightRoadsPanel({ onBack }: { onBack: () => void }) {
               type="button"
               className="btn btn-primary"
               data-qa="eight-roads-close"
+              disabled={!ready}
+              onClick={() => {
+                if (!ready) return;
+                onBack();
+              }}
+            >
+              返回標題
+            </button>
+          </div>
+        </div>
+      </div>
+    </section>
+  );
+}
+
+/** 全員紀念 — unlocked when 關趙張諸劉曹周孫貂 all 初章既竟; holds 「全員初章既竟」 ≥2.5s. */
+export function AllNinePanel({ onBack }: { onBack: () => void }) {
+  const [ready, setReady] = useState(false);
+  useEffect(() => {
+    const timer = window.setTimeout(() => setReady(true), 2500);
+    return () => window.clearTimeout(timer);
+  }, []);
+  const rows = [
+    { name: "關羽", blurb: "義氣破北營，青龍刀定新野。" },
+    { name: "趙雲", blurb: "白馬銀槍，護民於常山平野。" },
+    { name: "張飛", blurb: "燕人虎威，喝退鎮口黃巾。" },
+    { name: "諸葛亮", blurb: "臥龍出山，以計破偽軍師。" },
+    { name: "劉備", blurb: "桃園之誓，拔鄉霸而安民。" },
+    { name: "曹操", blurb: "官道收旗，探馬風聲入袖。" },
+    { name: "周瑜", blurb: "柴桑鼓定，江賊旗倒入水。" },
+    { name: "孫尚香", blurb: "水寨箭道再開，遠射可及江面。" },
+    { name: "貂蟬", blurb: "月下勸開悍衛，一曲先鬆其盾。" },
+  ];
+  return (
+    <section className="screen select-stage" data-qa="all-nine-panel">
+      <div className="bg-plate" style={{ backgroundImage: "url(./art/bg-title.png)", opacity: 0.4 }} />
+      <div className="select-inner">
+        <div className="sheet gold-frame all-nine-sheet" style={{ margin: "24px auto", maxWidth: 480 }}>
+          <h1 className="all-nine-title" data-qa="all-nine-title" style={{ marginTop: 0, color: "var(--gold)" }}>
+            全員初章既竟
+          </h1>
+          <p className="all-nine-hold-hint" aria-hidden={ready}>
+            {ready ? "" : "……"}
+          </p>
+          <ul className="all-nine-list" data-qa="all-nine-list">
+            {rows.map((r) => (
+              <li key={r.name} className="all-nine-row gold-frame chip">
+                <b>{r.name}</b>
+                <span>{r.blurb}</span>
+              </li>
+            ))}
+          </ul>
+          <div className="btn-row" style={{ marginTop: 14 }}>
+            <button
+              type="button"
+              className="btn btn-primary"
+              data-qa="all-nine-close"
               disabled={!ready}
               onClick={() => {
                 if (!ready) return;

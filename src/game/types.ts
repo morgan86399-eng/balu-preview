@@ -50,6 +50,7 @@ export type Screen =
   | "sixRoads"
   | "sevenRoads"
   | "eightRoads"
+  | "allNine"
   | "saveSlots"
   | "worldMap"
   | "settings"
